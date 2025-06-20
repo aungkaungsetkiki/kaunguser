@@ -1,0 +1,2073 @@
+   // DOM Elements
+    const numberInput = document.getElementById('number-input');
+    const functionInput = document.getElementById('function-input');
+    const moneyInput = document.getElementById('money-input');
+    const rMoneyGroup = document.getElementById('r-money-group');
+    const rMoneyInput = document.getElementById('r-money-input');
+    const ahkaysGroup = document.getElementById('ahkays-group');
+    const ahkaysInput = document.getElementById('ahkays-input');
+    const functionBtn = document.getElementById('function-btn');
+    const saveBtn = document.getElementById('save-btn');
+    const functionList = document.getElementById('function-list');
+    const listTable = document.getElementById('list-table').getElementsByTagName('tbody')[0];
+    const overLimitTable = document.getElementById('over-limit-table').getElementsByTagName('tbody')[0];
+    const numberSequenceTable = document.getElementById('number-sequence-table');
+    const headerRow = document.getElementById('header-row');
+    const footerRow = document.getElementById('footer-row');
+    const totalMoneyEl = document.getElementById('total-money');
+    const breakLimitInput = document.getElementById('break-limit');
+    const applyLimitBtn = document.getElementById('apply-limit-btn');
+    const overLimitTotalEl = document.getElementById('over-limit-total');
+    const clearAllBtn = document.getElementById('clear-all-btn');
+    const totalLedgerMoneyEl = document.getElementById('total-ledger-money');
+    const commissionInput = document.getElementById('commission-input');
+    const multiplierInput = document.getElementById('multiplier-input');
+    const payoutInput = document.getElementById('payout-input');
+    const displayTotalLedgerMoney = document.getElementById('display-total-ledger-money');
+    const commissionAmount = document.getElementById('commission-amount');
+    const afterCommission = document.getElementById('after-commission');
+    const afterPayout = document.getElementById('after-payout');
+    const profitLoss = document.getElementById('profit-loss');
+    const resultStatus = document.getElementById('result-status');
+    
+    // DI Input Elements
+    const diNumberInput = document.getElementById('dinumber-input');
+    const diFunctionInput = document.getElementById('difunction-input');
+    const diMoneyInput = document.getElementById('dimoney-input');
+    const diRMoneyGroup = document.getElementById('dir-money-group');
+    const diRMoneyInput = document.getElementById('dir-money-input');
+    const diAhkaysGroup = document.getElementById('diahkays-group');
+    const diAhkaysInput = document.getElementById('diahkays-input');
+    const diFunctionBtn = document.getElementById('difunction-btn');
+    const diSaveBtn = document.getElementById('disave-btn');
+    const diFunctionList = document.getElementById('difunction-list');
+    const diListTable = document.getElementById('di-list-table').getElementsByTagName('tbody')[0];
+    const ditotalMoneyEl = document.getElementById('di-total-money');
+
+
+
+// DOM Elements Dateall delete 
+const clearAllDateBtn = document.getElementById('clear-all-date-btn');
+const passwordModal = document.getElementById('password-modal');
+const passwordInput = document.getElementById('password-input');
+const confirmPasswordBtn = document.getElementById('confirm-password-btn');
+const passwordError = document.getElementById('password-error');
+const closeModal = document.getElementsByClassName('close')[0];
+// Password Configuration
+const CORRECT_PASSWORD = "kyl123";
+
+
+    // Data
+    let numberMoneyData = JSON.parse(localStorage.getItem('numberMoneyData')) || [];
+    let diNumberMoneyData = JSON.parse(localStorage.getItem('diNumberMoneyData')) || [];
+    let breakLimit = parseInt(localStorage.getItem('breakLimit')) || 1000000;
+    let entryCounter = 1;
+    let summaryData = JSON.parse(localStorage.getItem('summaryData')) || [];
+    let debounceTimer;
+
+
+function getCurrentStorageKey() {
+        const date = document.getElementById('display-date').textContent.trim();
+        const time = document.getElementById('display-time').textContent.trim();
+        return `ledger_${date}_${time}`;
+    }
+
+    function saveDataByDateTime() {
+        const storageKey = getCurrentStorageKey();
+        const dataToSave = {
+            numberMoneyData: numberMoneyData,
+            diNumberMoneyData: diNumberMoneyData,
+            summaryData: summaryData,
+     savedPNumber: document.getElementById('pnumber-input').value || ''
+        };
+        localStorage.setItem(storageKey, JSON.stringify(dataToSave));
+    }
+
+    function debounceLoadData() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(loadDataByDateTime, 300);
+    }
+
+    function updateDateTimeDisplay() {
+        const now = new Date();
+        
+        // Date format: DD-MM-YYYY
+        const formattedDate = [
+            String(now.getDate()).padStart(2, '0'),
+            String(now.getMonth() + 1).padStart(2, '0'),
+            now.getFullYear()
+        ].join('-');
+        
+        // Time format: AM/PM
+        const hours = now.getHours();
+        const timePeriod = hours < 12 ? 'AM' : 'PM';
+        
+        // Update display
+        document.getElementById('display-date').textContent = formattedDate;
+        document.getElementById('display-time').textContent = timePeriod;
+        
+        // Auto load data for current date/time with debounce
+        debounceLoadData();
+    }
+
+    function loadDataByDateTime() {
+        const storageKey = getCurrentStorageKey();
+        const savedData = JSON.parse(localStorage.getItem(storageKey));
+
+        if (savedData) {
+            numberMoneyData = savedData.numberMoneyData || [];
+            diNumberMoneyData = savedData.diNumberMoneyData || [];
+            summaryData = savedData.summaryData || [];
+    // Load the saved PNumber for this date/time
+        document.getElementById('pnumber-input').value = savedData.savedPNumber || '';
+        } else {
+            numberMoneyData = [];
+            diNumberMoneyData = [];
+            summaryData = [];
+document.getElementById('pnumber-input').value = '';
+        }
+
+        renderAllTables();
+        updateTotalMoney();
+        updateDITotalMoney();
+        renderSummaryTable();
+
+       // If there's a PNumber, trigger calculations
+    if (document.getElementById('pnumber-input').value) {
+        const event = new Event('input');
+        document.getElementById('pnumber-input').dispatchEvent(event);
+    }
+}
+
+
+    // Initialize the app
+    function initApp() {
+        breakLimitInput.value = breakLimit;
+        renderAllTables();
+        renderDIListTable();
+        updateTotalMoney();
+renderSummaryTable(); 
+updateDITotalMoney();
+loadDataByDateTime(); 
+updateDisplay();
+        numberInput.focus();
+    }
+
+    // Auto-focus flow for main input
+    numberInput.addEventListener('input', function() {
+        if (this.value.length === 2) {
+            functionInput.focus();
+        }
+    });
+
+    // Auto-focus flow for DI input
+    diNumberInput.addEventListener('input', function() {
+        if (this.value.length === 2) {
+            diFunctionInput.focus();
+        }
+    });
+
+    functionInput.addEventListener('input', function() {
+        updateFunctionsplay(this.value, rMoneyGroup, ahkaysGroup, functionBtn);
+    });
+
+    diFunctionInput.addEventListener('input', function() {
+        updateFunctionsplay(this.value, diRMoneyGroup, diAhkaysGroup, diFunctionBtn);
+    });
+
+    function updateFunctionsplay(funcSign, rMoneyGroup, ahkaysGroup, functionBtn) {
+        if (funcSign.includes('/')) {
+            rMoneyGroup.style.display = 'block';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.textContent = 'ဆတူအာ';
+            functionBtn.style.backgroundColor = '#4CAF50';
+            moneyInput.focus();
+        } else if (funcSign.includes('+')) {
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.textContent = 'အပူး';
+            functionBtn.style.backgroundColor = '#FF9800';
+            moneyInput.focus();
+        } else if (funcSign.includes('a')) {
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.textContent = 'အပါ';
+            functionBtn.style.backgroundColor = '#9C27B0';
+            moneyInput.focus();
+        } else if (funcSign.includes('b')) {
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.textContent = 'ဘရိတ်';
+            functionBtn.style.backgroundColor = '#607d8b';
+            moneyInput.focus();
+        } else if (funcSign.includes('p')) {
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.textContent = 'ပါဝါ';
+            functionBtn.style.backgroundColor = '#5C6BC0';
+            moneyInput.focus();
+        } else if (funcSign.includes('k')) {
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.textContent = 'နက္ခ';
+            functionBtn.style.backgroundColor = '#26A69A';
+            moneyInput.focus();
+        } else if (funcSign.includes('t')) {
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.textContent = 'ထိပ်';
+            functionBtn.style.backgroundColor = '#FF5722';
+            moneyInput.focus();
+        } else if (funcSign.includes('d')) {
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.textContent = 'ပိတ်';
+            functionBtn.style.backgroundColor = '#795548';
+            moneyInput.focus();
+        } else if (funcSign.includes('sg')) {
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.textContent = 'ညီကို';
+            functionBtn.style.backgroundColor = '#EC407A';
+            moneyInput.focus();
+        } else if (funcSign.includes('gs')) {
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.textContent = 'ကိုညီ';
+            functionBtn.style.backgroundColor = '#AB47BC';
+            moneyInput.focus();
+        } else if (funcSign.includes('x')) {
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'block';
+            functionBtn.textContent = 'အခွေ';
+            functionBtn.style.backgroundColor = '#8D6E63';
+            moneyInput.focus();
+        } else if (funcSign.includes('z')) {
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'block';
+            functionBtn.textContent = 'အပူးပါအခွေ';
+            functionBtn.style.backgroundColor = '#7E57C2';
+            moneyInput.focus();
+        } else {
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.textContent = 'ဒဲ့';
+            functionBtn.style.backgroundColor = '#2196F3';
+        }
+    }
+
+    // Function list toggle
+    functionBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        functionList.classList.toggle('show');
+    });
+
+    // DI Function list toggle
+    diFunctionBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        diFunctionList.classList.toggle('show');
+    });
+
+    // Select function from list
+    document.querySelectorAll('.function-list a').forEach(item => {
+        item.addEventListener('click', function() {
+            selectFunction(this.textContent, functionInput, functionBtn, rMoneyGroup, ahkaysGroup);
+        });
+    });
+
+    // Select DI function from list
+    document.querySelectorAll('.difunction-list a').forEach(item => {
+        item.addEventListener('click', function() {
+            selectFunction(this.textContent, diFunctionInput, diFunctionBtn, diRMoneyGroup, diAhkaysGroup);
+        });
+    });
+
+    function selectFunction(text, functionInput, functionBtn, rMoneyGroup, ahkaysGroup) {
+        functionInput.value = text;
+        functionBtn.textContent = text;
+        functionList.classList.remove('show');
+        diFunctionList.classList.remove('show');
+        
+        if (text === 'ဆတူအာ') {
+            functionInput.value = '/';
+            rMoneyGroup.style.display = 'block';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.style.backgroundColor = '#4CAF50';
+            moneyInput.focus();
+        } else if (text === 'အပူး') {
+            functionInput.value = '+';
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.style.backgroundColor = '#FF9800';
+            moneyInput.focus();
+        } else if (text === 'အပါ') {
+            functionInput.value = 'a';
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.style.backgroundColor = '#9C27B0';
+            moneyInput.focus();
+        } else if (text === 'ဘရိတ်') {
+            functionInput.value = 'b';
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.style.backgroundColor = '#607d8b';
+            moneyInput.focus();
+        } else if (text === 'ပါဝါ') {
+            functionInput.value = 'p';
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.style.backgroundColor = '#5C6BC0';
+            moneyInput.focus();
+        } else if (text === 'နက္ခ') {
+            functionInput.value = 'k';
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.style.backgroundColor = '#26A69A';
+            moneyInput.focus();
+        } else if (text === 'ထိပ်') {
+            functionInput.value = 't';
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.style.backgroundColor = '#FF5722';
+            moneyInput.focus();
+        } else if (text === 'ပိတ်') {
+            functionInput.value = 'd';
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.style.backgroundColor = '#795548';
+            moneyInput.focus();
+        } else if (text === 'ညီကို') {
+            functionInput.value = 'sg';
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.style.backgroundColor = '#EC407A';
+            moneyInput.focus();
+        } else if (text === 'ကိုညီ') {
+            functionInput.value = 'gs';
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.style.backgroundColor = '#AB47BC';
+            moneyInput.focus();
+        } else if (text === 'အခွေ') {
+            functionInput.value = 'x';
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'block';
+            functionBtn.style.backgroundColor = '#8D6E63';
+            moneyInput.focus();
+        } else if (text === 'အပူးပါအခွေ') {
+            functionInput.value = 'z';
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'block';
+            functionBtn.style.backgroundColor = '#7E57C2';
+            moneyInput.focus();
+        } else {
+            rMoneyGroup.style.display = 'none';
+            ahkaysGroup.style.display = 'none';
+            functionBtn.style.backgroundColor = '#2196F3';
+        }
+    }
+
+    // Close function list when clicking outside
+    window.addEventListener('click', function() {
+        functionList.classList.remove('show');
+        diFunctionList.classList.remove('show');
+    });
+
+    // Reverse number digits (12 -> 21)
+    function reverseNumber(num) {
+        return num.split('').reverse().join('');
+    }
+
+    // Get all numbers with same first digit (for 't' - ထိပ်)
+    function getPrefixNumbers(number) {
+        const prefix = number.charAt(0);
+        let numbers = [];
+        
+        for (let i = 0; i < 10; i++) {
+            numbers.push(prefix + i);
+        }
+        
+        return numbers;
+    }
+
+    // Get all numbers with same first or second digit (for 'a' - အပါ)
+    function getAPANumbers(number) {
+        const firstgit = number.charAt(0);
+        const secondgit = number.charAt(1);
+        let numbers = new Set();
+        
+        for (let i = 0; i < 10; i++) {
+            numbers.add(firstgit + i);
+        }
+        
+        for (let i = 0; i < 10; i++) {
+            numbers.add(i + secondgit);
+        }
+        
+        return Array.from(numbers);
+    }
+
+    // Get all numbers with same last digit (for 'd' - ပိတ်)
+    function getSuffixNumbers(number) {
+        const suffix = number.charAt(1);
+        let numbers = [];
+        
+        for (let i = 0; i < 10; i++) {
+            numbers.push(i.toString() + suffix);
+        }
+        
+        return numbers;
+    }
+
+    // Get all numbers where last digit of sum equals last digit of input number's sum
+    function getBreakNumbers(number) {
+        const digit1 = parseInt(number.charAt(0));
+        const digit2 = parseInt(number.charAt(1));
+        const sum = digit1 + digit2;
+        const lastgit = sum % 10;
+        
+        let numbers = [];
+        
+        for (let i = 0; i < 10; i++) {
+            for (let j = 0; j < 10; j++) {
+                if ((i + j) % 10 === lastgit) {
+                    const num = i.toString() + j.toString();
+                    numbers.push(num);
+                }
+            }
+        }
+        
+        return numbers;
+    }
+
+    // Get all power numbers (05, 16, 27, 38, 49, 50, 61, 72, 83, 94)
+    function getPowerNumbers() {
+        return ['05', '16', '27', '38', '49', '50', '61', '72', '83', '94'];
+    }
+
+    // Get all nacca numbers (07, 18, 24, 35, 42, 53, 69, 70, 81, 96)
+    function getNaccaNumbers() {
+        return ['07', '18', '24', '35', '42', '53', '69', '70', '81', '96'];
+    }
+
+    // Get brother numbers (01, 12, 23, 34, 45, 56, 67, 78, 89, 90)
+    function getBrotherNumbers() {
+        return ['01', '12', '23', '34', '45', '56', '67', '78', '89', '90'];
+    }
+
+    // Get reverse brother numbers (10, 21, 32, 43, 54, 65, 76, 87, 98, 09)
+    function getReverseBrotherNumbers() {
+        return ['10', '21', '32', '43', '54', '65', '76', '87', '98', '09'];
+    }
+
+    // Get all possible 2-digit combinations from a string of digits (for Ahkway)
+    function getAhkwayNumbers(digits) {
+        let numbers = new Set();
+        
+        for (let i = 0; i < digits.length; i++) {
+            for (let j = 0; j < digits.length; j++) {
+                if (i !== j) {
+                    numbers.add(digits[i] + digits[j]);
+                }
+            }
+        }
+        
+        return Array.from(numbers);
+    }
+
+    // Get all possible 2-digit combinations including identical numbers (for Ahput Par Ahkway)
+    function getAhputParAhkwayNumbers(digits) {
+        let numbers = new Set();
+        
+        for (let i = 0; i < digits.length; i++) {
+            for (let j = 0; j < digits.length; j++) {
+                numbers.add(digits[i] + digits[j]);
+            }
+        }
+        
+        return Array.from(numbers);
+    }
+
+    // Calculate total money for a number (including DI entries)
+    function calculateMoneyForNumber(number) {
+        const mainMoney = numberMoneyData
+            .filter(item => item.number === number)
+            .reduce((sum, item) => sum + parseInt(item.money), 0);
+        
+        const diMoney = diNumberMoneyData
+            .filter(item => item.number === number)
+            .reduce((sum, item) => sum - parseInt(item.money), 0); // Subtract DI money
+        
+        return mainMoney + diMoney;
+    }
+// Calculate total DI money
+function calculateDITotalMoney() {
+    return diNumberMoneyData.reduce((sum, item) => sum + parseInt(item.money), 0);
+}
+
+// Update DI total money display
+function updateDITotalMoney() {
+    document.getElementById('di-total-money').textContent = calculateDITotalMoney();
+document.getElementById('di-total-money-display').textContent = calculateDITotalMoney();
+
+}
+
+    // Render all tables
+    function renderAllTables() {
+        renderListTable();
+        renderDIListTable();
+        renderNumberSequenceTable();
+        updateOverLimitTable();
+    }
+
+    // Render list table
+    function renderListTable() {
+        listTable.innerHTML = '';
+        entryCounter = 1;
+  const nameFilter = document.getElementById('name-input').value;
+    
+    
+     
+        numberMoneyData.forEach((item, index) => {
+   if (nameFilter && item.name !== nameFilter) return;
+        
+       
+            const row = listTable.insertRow();
+            if (item.type === 'Main') row.classList.add('main-entry');
+            if (item.type === 'Reversed') row.classList.add('r-entry');
+            if (item.type === 'Identical') row.classList.add('identical-entry');
+            if (item.type === 'Prefix') row.classList.add('prefix-entry');
+            if (item.type === 'Suffix') row.classList.add('suffix-entry');
+            if (item.type === 'Break') row.classList.add('break-entry');
+            if (item.type === 'Power') row.classList.add('power-entry');
+            if (item.type === 'Nacca') row.classList.add('nacca-entry');
+            if (item.type === 'APa') row.classList.add('prefix-entry');
+            if (item.type === 'Brother') row.classList.add('brother-entry');
+            if (item.type === 'ReverseBrother') row.classList.add('reverse-brother-entry');
+            if (item.type === 'Ahkway') row.classList.add('ahkway-entry');
+            if (item.type === 'Ahput Par Ahkway') row.classList.add('ahput-par-ahkway-entry');
+            row.insertCell(0).textContent = item.name || '';
+            row.insertCell(1).textContent = item.number;
+            row.insertCell(2).textContent = item.money;
+            row.insertCell(3).textContent = item.type || 'Normal';
+            
+            const actionsCell = row.insertCell(4);
+            
+            const editBtn = document.createElement('button');
+            editBtn.textContent = 'Edit';
+            editBtn.addEventListener('click', () => editItem(index));
+            actionsCell.appendChild(editBtn);
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.classList.add('danger');
+            deleteBtn.addEventListener('click', () => deleteItem(index));
+            actionsCell.appendChild(deleteBtn);
+        });
+    }
+
+    // Render DI list table
+    function renderDIListTable() {
+        diListTable.innerHTML = '';
+  const diNameFilter = document.getElementById('diname-input').value;
+    
+    
+        // DI Name filter နဲ့ တူမှသာ ပြမယ်
+     
+        
+        
+        diNumberMoneyData.forEach((item, index) => {
+   if (diNameFilter && item.name !== diNameFilter) return;
+        
+            const row = diListTable.insertRow();
+            row.classList.add('di-list-entry');
+            row.insertCell(0).textContent = item.name || '';
+            row.insertCell(1).textContent = item.number;
+            row.insertCell(2).textContent = item.money;
+            row.insertCell(3).textContent = item.type || 'DI Normal';
+            
+            const actionsCell = row.insertCell(4);
+            
+            const editBtn = document.createElement('button');
+            editBtn.textContent = 'Edit';
+            editBtn.addEventListener('click', () => editDIItem(index));
+            actionsCell.appendChild(editBtn);
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.classList.add('danger');
+            deleteBtn.addEventListener('click', () => deleteDIItem(index));
+            actionsCell.appendChild(deleteBtn);
+        });
+    }
+
+    function renderNumberSequenceTable() {
+        const table = document.getElementById('number-sequence-table');
+        table.innerHTML = '';
+        
+        // Create header
+        const headerRow = table.createTHead().insertRow();
+        for (let i = 0; i < 10; i++) {
+            headerRow.appendChild(document.createElement('th')).textContent = 'Number';
+            headerRow.appendChild(document.createElement('th')).textContent = 'Money';
+        }
+        
+        // Create body
+        const tbody = table.createTBody();
+        const columnTotals = Array(10).fill(0);
+        let grandTotal = 0;
+        
+        for (let rowNum = 0; rowNum < 10; rowNum++) {
+            const row = tbody.insertRow();
+            
+            for (let colNum = 0; colNum < 10; colNum++) {
+                const number = (colNum * 10 + rowNum).toString().padStart(2, '0');
+                const totalMoney = calculateMoneyForNumber(number);
+                const displayMoney = totalMoney > breakLimit ? breakLimit : totalMoney;
+                
+                // Number cell
+                row.insertCell().textContent = number;
+                
+                // Money cell
+                const moneyCell = row.insertCell();
+                moneyCell.textContent = displayMoney;
+                
+                if (totalMoney > breakLimit) {
+                    moneyCell.classList.add('over-limit-cell');
+                }
+                
+                // Add to column total and grand total
+                columnTotals[colNum] += displayMoney;
+                grandTotal += displayMoney;
+            }
+        }
+        
+        // Create footer
+        const tfoot = table.createTFoot();
+        const footer = tfoot.insertRow();
+        footer.insertCell().textContent = 'Total';
+        footer.insertCell().classList.add('total-cell');
+        
+        for (let colNum = 0; colNum < 10; colNum++) {
+            footer.insertCell().textContent = columnTotals[colNum];
+            footer.insertCell().classList.add('total-cell');
+        }
+        
+        // Update grand total display
+        totalLedgerMoneyEl.textContent = grandTotal;
+    }
+
+    // Update over limit table
+    function updateOverLimitTable() {
+        overLimitTable.innerHTML = '';
+        let overLimitTotal = 0;
+        
+        for (let i = 0; i < 100; i++) {
+            const number = i.toString().padStart(2, '0');
+            const totalMoney = calculateMoneyForNumber(number);
+            
+            if (totalMoney > breakLimit) {
+                const overAmount = totalMoney - breakLimit;
+                overLimitTotal += overAmount;
+                
+                const row = overLimitTable.insertRow();
+                row.insertCell(0).textContent = number;
+                row.insertCell(1).textContent = totalMoney;
+                row.insertCell(2).textContent = overAmount;
+            }
+        }
+        
+        overLimitTotalEl.textContent = overLimitTotal;
+    }
+
+    // Update total money
+    function updateTotalMoney() {
+        const total = numberMoneyData.reduce((sum, item) => sum + parseInt(item.money), 0);
+        totalMoneyEl.textContent = total;
+document.getElementById('total-money-display').textContent = total;
+    }
+
+    // Save data
+    function saveData() {
+        const number = numberInput.value;
+        const money = (moneyInput.value)*100;
+        const rMoney = (rMoneyInput.value)*100;
+        const ahkays = ahkaysInput.value;
+ const name = document.getElementById('name-input').value;
+
+   if (!name || name.trim() === '') {
+        alert('ကျေးဇူးပြု၍ Name ထည့်ပါ');
+        document.getElementById('name-input').focus();
+        return;
+    }
+        if (!number || number.length !== 2 || isNaN(number)) {
+            alert('Please enter a valid 2-digit number');
+            numberInput.focus();
+            return;
+        }
+
+        if (!money || isNaN(money) || money < 0) {
+            alert('Please enter a valid money amount');
+            moneyInput.focus();
+            return;
+        }
+
+        const funcSign = functionInput.value;
+        if (funcSign.includes('/')) {
+            // Add main entry
+            numberMoneyData.push({
+    name: name, 
+                number: number,
+                money: money,
+                type: 'Main'
+            });
+            
+            // Add reversed entry
+            const reversedNumber = reverseNumber(number);
+            const rMoneyValue = rMoney && !isNaN(rMoney) ? rMoney : money;
+            numberMoneyData.push({
+    name: name, 
+                number: reversedNumber,
+                money: rMoneyValue,
+                type: 'Reversed'
+            });
+        } else if (funcSign.includes('+')) {
+            // Add entries for all identical numbers (00, 11, 22, etc.)
+            for (let i = 0; i < 10; i++) {
+                const identicalNumber = i.toString() + i.toString();
+                numberMoneyData.push({
+    name: name, 
+                    number: identicalNumber,
+                    money: money,
+                    type: 'Identical'
+                });
+            }
+        } else if (funcSign.includes('a')) {
+            // Add entries for all numbers with same first OR second digit (အပါ)
+            const apaNumbers = getAPANumbers(number);
+            apaNumbers.forEach(num => {
+                numberMoneyData.push({
+    name: name, 
+                    number: num,
+                    money: money,
+                    type: 'APa'
+                });
+            });
+        } else if (funcSign.includes('t')) {
+            // Add entries for all numbers with same first digit (ထိပ်)
+            const prefixNumbers = getPrefixNumbers(number);
+            prefixNumbers.forEach(num => {
+                numberMoneyData.push({
+    name: name, 
+                    number: num,
+                    money: money,
+                    type: 'Prefix'
+                });
+            });
+        } else if (funcSign.includes('d')) {
+            // Add entries for all numbers with same last digit (ပိတ်)
+            const suffixNumbers = getSuffixNumbers(number);
+            suffixNumbers.forEach(num => {
+                numberMoneyData.push({
+    name: name, 
+                    number: num,
+                    money: money,
+                    type: 'Suffix'
+                });
+            });
+        } else if (funcSign.includes('b')) {
+            // Add entries for all numbers where sum of digits has same last digit
+            const breakNumbers = getBreakNumbers(number);
+            breakNumbers.forEach(num => {
+                numberMoneyData.push({
+    name: name, 
+                    number: num,
+                    money: money,
+                    type: 'Break'
+                });
+            });
+        } else if (funcSign.includes('p')) {
+            // Add entries for all power numbers
+            const powerNumbers = getPowerNumbers();
+            powerNumbers.forEach(num => {
+                numberMoneyData.push({
+    name: name, 
+                    number: num,
+                    money: money,
+                    type: 'Power'
+                });
+            });
+        } else if (funcSign.includes('k')) {
+            // Add entries for all nacca numbers
+            const naccaNumbers = getNaccaNumbers();
+            naccaNumbers.forEach(num => {
+                numberMoneyData.push({
+    name: name, 
+                    number: num,
+                    money: money,
+                    type: 'Nacca'
+                });
+            });
+        } else if (funcSign.includes('sg')) {
+            // Add entries for all brother numbers (01, 12, 23, etc.)
+            const brotherNumbers = getBrotherNumbers();
+            brotherNumbers.forEach(num => {
+                numberMoneyData.push({
+    name: name, 
+                    number: num,
+                    money: money,
+                    type: 'Brother'
+                });
+            });
+        } else if (funcSign.includes('gs')) {
+            // Add entries for all reverse brother numbers (10, 21, 32, etc.)
+            const reverseBrotherNumbers = getReverseBrotherNumbers();
+            reverseBrotherNumbers.forEach(num => {
+                numberMoneyData.push({
+    name: name, 
+                    number: num,
+                    money: money,
+                    type: 'ReverseBrother'
+                });
+            });
+        } else if (funcSign.includes('x')) {
+            // Add entries for all Ahkway combinations
+            if (!ahkays || ahkays.length < 2) {
+                alert('Please enter at least 2 digits for Ahkway');
+                ahkaysInput.focus();
+                return;
+            }
+            
+            const ahkwayNumbers = getAhkwayNumbers(ahkays);
+            ahkwayNumbers.forEach(num => {
+                numberMoneyData.push({
+    name: name, 
+                    number: num,
+                    money: money,
+                    type: 'Ahkway'
+                });
+            });
+        } else if (funcSign.includes('z')) {
+            // Add entries for all Ahput Par Ahkway combinations
+            if (!ahkays || ahkays.length < 2) {
+                alert('Please enter at least 2 digits for Ahput Par Ahkway');
+                ahkaysInput.focus();
+                return;
+            }
+            
+            const ahputParAhkwayNumbers = getAhputParAhkwayNumbers(ahkays);
+            ahputParAhkwayNumbers.forEach(num => {
+                numberMoneyData.push({
+    name: name, 
+                    number: num,
+                    money: money,
+                    type: 'Ahput Par Ahkway'
+                });
+            });
+        } else {
+            // Add single entry
+            numberMoneyData.push({
+    name: name, 
+                number: number,
+                money: money,
+                type: 'Normal'
+            });
+        }
+
+        // Save to localStorage
+        localStorage.setItem('numberMoneyData', JSON.stringify(numberMoneyData));
+        saveDataByDateTime(); 
+        // Clear inputs and update UI
+        clearInputs();
+        renderAllTables();
+        updateTotalMoney();
+updateDITotalMoney();
+addSummaryData();
+         
+        const tableContainer = document.querySelector('.table-container');
+        if (tableContainer) {
+            tableContainer.scrollTop = tableContainer.scrollHeight;
+        }
+    }
+
+    // Save DI data
+    function saveDIData() {
+        const number = diNumberInput.value;
+        const money = (diMoneyInput.value)*100;
+        const rMoney = (diRMoneyInput.value)*100;
+        const ahkays = diAhkaysInput.value;
+ const diName = document.getElementById('diname-input').value;
+ if (!diName || diName.trim() === '') {
+        alert('ကျေးဇူးပြု၍ DI Name ထည့်ပါ');
+        document.getElementById('diname-input').focus();
+        return;
+    }
+
+
+        if (!number || number.length !== 2 || isNaN(number)) {
+            alert('Please enter a valid 2-digit number');
+            diNumberInput.focus();
+            return;
+        }
+
+        if (!money || isNaN(money) || money < 0) {
+            alert('Please enter a valid money amount');
+            diMoneyInput.focus();
+            return;
+        }
+
+        const funcSign = diFunctionInput.value;
+        if (funcSign.includes('/')) {
+            // Add main DI entry
+            diNumberMoneyData.push({
+  name: diName,
+                number: number,
+                money: money,
+                type: 'DI Main'
+            });
+            
+            // Add reversed DI entry
+            const reversedNumber = reverseNumber(number);
+            const rMoneyValue = rMoney && !isNaN(rMoney) ? rMoney : money;
+            diNumberMoneyData.push({
+  name: diName,
+                number: reversedNumber,
+                money: rMoneyValue,
+                type: 'DI Reversed'
+            });
+        } else if (funcSign.includes('+')) {
+            // Add DI entries for all identical numbers (00, 11, 22, etc.)
+            for (let i = 0; i < 10; i++) {
+                const identicalNumber = i.toString() + i.toString();
+                diNumberMoneyData.push({
+  name: diName,
+                    number: identicalNumber,
+                    money: money,
+                    type: 'DI Identical'
+                });
+            }
+        } else if (funcSign.includes('a')) {
+            // Add DI entries for all numbers with same first OR second digit (အပါ)
+            const apaNumbers = getAPANumbers(number);
+            apaNumbers.forEach(num => {
+                diNumberMoneyData.push({
+  name: diName,
+                    number: num,
+                    money: money,
+                    type: 'DI APa'
+                });
+            });
+        } else if (funcSign.includes('t')) {
+            // Add DI entries for all numbers with same first digit (ထိပ်)
+            const prefixNumbers = getPrefixNumbers(number);
+            prefixNumbers.forEach(num => {
+                diNumberMoneyData.push({
+  name: diName,
+                    number: num,
+                    money: money,
+                    type: 'DI Prefix'
+                });
+            });
+        } else if (funcSign.includes('d')) {
+            // Add DI entries for all numbers with same last digit (ပိတ်)
+            const suffixNumbers = getSuffixNumbers(number);
+            suffixNumbers.forEach(num => {
+                diNumberMoneyData.push({
+  name: diName,
+                    number: num,
+                    money: money,
+                    type: 'DI Suffix'
+                });
+            });
+        } else if (funcSign.includes('b')) {
+            // Add DI entries for all numbers where sum of digits has same last digit
+            const breakNumbers = getBreakNumbers(number);
+            breakNumbers.forEach(num => {
+                diNumberMoneyData.push({
+  name: diName,
+                    number: num,
+                    money: money,
+                    type: 'DI Break'
+                });
+            });
+        } else if (funcSign.includes('p')) {
+            // Add DI entries for all power numbers
+            const powerNumbers = getPowerNumbers();
+            powerNumbers.forEach(num => {
+                diNumberMoneyData.push({
+  name: diName,
+                    number: num,
+                    money: money,
+                    type: 'DI Power'
+                });
+            });
+        } else if (funcSign.includes('k')) {
+            // Add DI entries for all nacca numbers
+            const naccaNumbers = getNaccaNumbers();
+            naccaNumbers.forEach(num => {
+                diNumberMoneyData.push({
+  name: diName,
+                    number: num,
+                    money: money,
+                    type: 'DI Nacca'
+                });
+            });
+        } else if (funcSign.includes('sg')) {
+            // Add DI entries for all brother numbers (01, 12, 23, etc.)
+            const brotherNumbers = getBrotherNumbers();
+            brotherNumbers.forEach(num => {
+                diNumberMoneyData.push({
+  name: diName,
+                    number: num,
+                    money: money,
+                    type: 'DI Brother'
+                });
+            });
+        } else if (funcSign.includes('gs')) {
+            // Add DI entries for all reverse brother numbers (10, 21, 32, etc.)
+            const reverseBrotherNumbers = getReverseBrotherNumbers();
+            reverseBrotherNumbers.forEach(num => {
+                diNumberMoneyData.push({
+  name: diName,
+                    number: num,
+                    money: money,
+                    type: 'DI ReverseBrother'
+                });
+            });
+        } else if (funcSign.includes('x')) {
+            // Add DI entries for all Ahkway combinations
+            if (!ahkays || ahkays.length < 2) {
+                alert('Please enter at least 2 digits for Ahkway');
+                diAhkaysInput.focus();
+                return;
+            }
+            
+            const ahkwayNumbers = getAhkwayNumbers(ahkays);
+            ahkwayNumbers.forEach(num => {
+                diNumberMoneyData.push({
+  name: diName,
+                    number: num,
+                    money: money,
+                    type: 'DI Ahkway'
+                });
+            });
+        } else if (funcSign.includes('z')) {
+            // Add DI entries for all Ahput Par Ahkway combinations
+            if (!ahkays || ahkays.length < 2) {
+                alert('Please enter at least 2 digits for Ahput Par Ahkway');
+                diAhkaysInput.focus();
+                return;
+            }
+            
+            const ahputParAhkwayNumbers = getAhputParAhkwayNumbers(ahkays);
+            ahputParAhkwayNumbers.forEach(num => {
+                diNumberMoneyData.push({
+  name: diName,
+                    number: num,
+                    money: money,
+                    type: 'DI Ahput Par Ahkway'
+                });
+            });
+        } else {
+            // Add single DI entry
+            diNumberMoneyData.push({
+  name: diName,
+                number: number,
+                money: money,
+                type: 'DI Normal'
+            });
+        }
+
+        // Save to localStorage
+        localStorage.setItem('diNumberMoneyData', JSON.stringify(diNumberMoneyData));
+        saveDataByDateTime(); 
+        // Clear DI inputs and update UI
+        clearDIInputs();
+        renderAllTables();
+        updateTotalMoney();
+updateDITotalMoney();
+renderOverbuyList();
+addSummaryData();
+    }
+
+    // Edit item
+    function editItem(index) {
+        const item = numberMoneyData[index];
+        
+        // Populate form with selected item data
+        numberInput.value = item.number;
+        moneyInput.value = (item.money)/100;
+        functionInput.value = '';
+        rMoneyGroup.style.display = 'none';
+        ahkaysGroup.style.display = 'none';
+        functionBtn.textContent = 'ဒဲ့';
+        functionBtn.style.backgroundColor = '#2196F3';
+
+        // Adjust function based on entry type
+        if (item.type === 'Main') {
+            functionInput.value = '';
+            rMoneyGroup.style.display = 'block';
+            functionBtn.textContent = 'ဆတူအာ';
+            functionBtn.style.backgroundColor = '#4CAF50';
+            
+            // Look for reversed entry but don't auto-delete
+            const reversedNumber = reverseNumber(item.number);
+            const reversedEntry = numberMoneyData.find(entry => 
+                entry.number === reversedNumber && entry.type === 'Reversed'
+            );
+            
+            if (reversedEntry) {
+                rMoneyInput.value = reversedEntry.money;
+            }
+        } else if (item.type === 'Identical') {
+            functionInput.value = '';
+            functionBtn.textContent = 'အပူး';
+            functionBtn.style.backgroundColor = '#FF9800';
+        }
+        // ... other types ...
+
+        // Remove only the selected item
+        numberMoneyData.splice(index, 1);
+
+        // Update storage and UI
+        localStorage.setItem('numberMoneyData', JSON.stringify(numberMoneyData));
+        renderAllTables();
+        updateTotalMoney();
+updateDITotalMoney();
+addSummaryData();
+        numberInput.focus();
+    }
+
+    // Edit DI item
+    function editDIItem(index) {
+        const item = diNumberMoneyData[index];
+        
+        // Populate form with selected item data
+        diNumberInput.value = item.number;
+        diMoneyInput.value = (item.money)/100;
+        diFunctionInput.value = '';
+        diRMoneyGroup.style.display = 'none';
+        diAhkaysGroup.style.display = 'none';
+        diFunctionBtn.textContent = 'ဒဲ့';
+        diFunctionBtn.style.backgroundColor = '#2196F3';
+
+        // Adjust function based on entry type
+        if (item.type === 'DI Main') {
+            diFunctionInput.value = '';
+            diRMoneyGroup.style.display = 'block';
+            diFunctionBtn.textContent = 'ဆတူအာ';
+            diFunctionBtn.style.backgroundColor = '#4CAF50';
+            
+            // Look for reversed entry but don't auto-delete
+            const reversedNumber = reverseNumber(item.number);
+            const reversedEntry = diNumberMoneyData.find(entry => 
+                entry.number === reversedNumber && entry.type === 'DI Reversed'
+            );
+            
+            if (reversedEntry) {
+                diRMoneyInput.value = reversedEntry.money;
+            }
+        } else if (item.type === 'DI Identical') {
+            diFunctionInput.value = '';
+            diFunctionBtn.textContent = 'အပူး';
+            diFunctionBtn.style.backgroundColor = '#FF9800';
+        }
+        // ... other types ...
+
+        // Remove only the selected item
+        diNumberMoneyData.splice(index, 1);
+
+        // Update storage and UI
+        localStorage.setItem('diNumberMoneyData', JSON.stringify(diNumberMoneyData));
+        renderAllTables();
+        updateTotalMoney();
+updateDITotalMoney();
+addSummaryData();
+        diNumberInput.focus();
+    }
+
+    // Delete item
+    function deleteItem(index) {
+        if (confirm('Are you sure you want to delete this item?')) {
+            const item = numberMoneyData[index];
+            
+            // Remove only the selected item
+            numberMoneyData.splice(index, 1);
+            
+            // Update local storage
+            localStorage.setItem('numberMoneyData', JSON.stringify(numberMoneyData));
+            renderAllTables();
+            updateTotalMoney();
+addSummaryData();
+updateDITotalMoney();
+        }
+    }
+
+    // Delete DI item
+    function deleteDIItem(index) {
+        if (confirm('Are you sure you want to delete this DI item?')) {
+            const item = diNumberMoneyData[index];
+            
+            // Remove only the selected item
+            diNumberMoneyData.splice(index, 1);
+            
+            // Update local storage
+            localStorage.setItem('diNumberMoneyData', JSON.stringify(diNumberMoneyData));
+            renderAllTables();
+            updateTotalMoney();
+addSummaryData();
+updateDITotalMoney();
+        }
+    }
+
+    // Apply break limit
+    function applyBreakLimit() {
+        const newLimit = parseInt(breakLimitInput.value);
+        
+        if (isNaN(newLimit) || newLimit < 0) {
+            alert('Please enter a valid positive number');
+            return;
+        }
+        
+        breakLimit = newLimit;
+        localStorage.setItem('breakLimit', breakLimit.toString());
+        addSummaryData();
+        renderNumberSequenceTable();
+        updateOverLimitTable();
+    }
+
+    // Overbuy modal အတွက် function
+    document.getElementById('overbuy-btn').addEventListener('click', function() {
+        // Hide all other elements
+        document.querySelectorAll('.container > *:not(.overbuy-section)').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        // Show modal
+        document.getElementById('overbuy-modal').style.display = 'block';
+        
+        // Populate overbuy list
+        renderOverbuyList();
+    });
+
+    // Close modal
+    document.querySelector('.close-modal').addEventListener('click', function() {
+        document.getElementById('overbuy-modal').style.display = 'none';
+        
+        // Show all elements again
+        document.querySelectorAll('.container > *').forEach(el => {
+            el.style.display = '';
+        });
+    });
+
+    // Render overbuy list
+    function renderOverbuyList() {
+        const table = document.getElementById('overbuy-list-table').getElementsByTagName('tbody')[0];
+        table.innerHTML = '';
+        
+        for (let i = 0; i < 100; i++) {
+            const number = i.toString().padStart(2, '0');
+            const totalMoney = calculateMoneyForNumber(number);
+            
+            if (totalMoney > breakLimit) {
+                const overAmount = totalMoney - breakLimit;
+                
+                const row = table.insertRow();
+                row.insertCell(0).textContent = number;
+                row.insertCell(1).textContent = overAmount;
+            }
+        }
+    }
+//clear all data
+
+  function clearAllData() {
+    if (confirm('ဒီရက်စွဲ/အချိန်အတွက် ဒေတာအားလုံးကို ဖျက်မှာသေချာပါသလား? ပြန်မရနိုင်ပါ။')) {
+        const storageKey = getCurrentStorageKey();
+        
+        // လက်ရှိ date/time အတွက် data အားလုံးဖျက်
+        localStorage.setItem(storageKey, JSON.stringify({
+            numberMoneyData: [],
+            diNumberMoneyData: [],
+            summaryData: [],
+            savedPNumber: '' // PNumber ကိုပါရှင်းမယ်
+        }));
+        
+        // UI ကို reset လုပ်
+        numberMoneyData = [];
+        diNumberMoneyData = [];
+        summaryData = [];
+        document.getElementById('pnumber-input').value = ''; // PNumber input ရှင်း
+        document.getElementById('summary-table').classList.remove('visible'); // summary ဖျောက်
+        
+        renderAllTables();
+        updateTotalMoney();
+        updateDITotalMoney();
+        
+        alert('ဒေတာအားလုံးဖျက်ပြီးပါပြီ။ အသစ်စပါမယ်။');
+    }
+}
+
+    // Clear input fields
+    function clearInputs() {
+
+        numberInput.value = '';
+        functionInput.value = '';
+        moneyInput.value = '';
+        rMoneyInput.value = '';
+        ahkaysInput.value = '';
+        rMoneyGroup.style.display = 'none';
+        ahkaysGroup.style.display = 'none';
+        functionBtn.textContent = 'ဒဲ့';
+        functionBtn.style.backgroundColor = '#2196F3';
+        numberInput.focus();
+    }
+
+    // Clear DI input fields
+    function clearDIInputs() {
+        diNumberInput.value = '';
+        diFunctionInput.value = '';
+        diMoneyInput.value = '';
+        diRMoneyInput.value = '';
+        diAhkaysInput.value = '';
+        diRMoneyGroup.style.display = 'none';
+        diAhkaysGroup.style.display = 'none';
+        diFunctionBtn.textContent = 'ဒဲ့';
+        diFunctionBtn.style.backgroundColor = '#2196F3';
+        diNumberInput.focus();
+    }
+
+    // Function to Update Calculations
+    function updateCalculations() {
+        // Get values from inputs
+        const totalLedgerMoney = parseFloat(totalLedgerMoneyEl.textContent) || 0;
+        const commission = parseFloat(commissionInput.value) || 0;
+        const multiplier = parseFloat(multiplierInput.value) || 0;
+        const payout = parseFloat(payoutInput.value) || 0;
+
+        // splay Total Ledger Money
+        displayTotalLedgerMoney.textContent = totalLedgerMoney;
+
+        // Calculate Commission Amount
+        const commissionValue = (totalLedgerMoney * commission) / 100;
+        commissionAmount.textContent = commissionValue.toFixed();
+
+        // Calculate After Commission
+        const afterCommissionValue = totalLedgerMoney - commissionValue;
+        afterCommission.textContent = afterCommissionValue.toFixed();
+
+        // Calculate After Payout
+        const afterPayoutValue = afterCommissionValue - (payout * multiplier);
+        afterPayout.textContent = afterPayoutValue.toFixed();
+
+        // Calculate Profit/Loss
+        profitLoss.textContent = afterPayoutValue.toFixed();
+
+        // Determine Result Status
+        if (afterPayoutValue < 0) {
+            resultStatus.textContent = "Loss";
+            resultStatus.style.color = "red";
+        } else {
+            resultStatus.textContent = "Profit";
+            resultStatus.style.color = "green";
+        }
+    }
+
+    // DOM Elements for ledger modal
+    const ledgerBtn = document.getElementById('ledger-btn');
+    const ledgerModal = document.getElementById('ledger-modal');
+    const closeLedgerModal = document.querySelector('.close-ledger-modal');
+
+    // Show ledger modal
+    ledgerBtn.addEventListener('click', function() {
+        // Make sure the table is rendered before showing
+        renderNumberSequenceTable();
+        ledgerModal.style.display = 'block';
+    });
+
+    // Close ledger modal
+    closeLedgerModal.addEventListener('click', function() {
+        ledgerModal.style.display = 'none';
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === ledgerModal) {
+            ledgerModal.style.display = 'none';
+        }
+    });
+
+    // Event listeners
+    saveBtn.addEventListener('click', saveData);
+    diSaveBtn.addEventListener('click', saveDIData);
+    applyLimitBtn.addEventListener('click', applyBreakLimit);
+    clearAllBtn.addEventListener('click', clearAllData);
+    commissionInput.addEventListener('input', updateCalculations);
+    multiplierInput.addEventListener('input', updateCalculations);
+    payoutInput.addEventListener('input', updateCalculations);
+
+    // Handle Enter key for main input
+    moneyInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') saveData();
+    });
+    
+    rMoneyInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') saveData();
+    });
+
+    ahkaysInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') saveData();
+    });
+
+    // Handle Enter key for DI input
+    diMoneyInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') saveDIData();
+    });
+    
+    diRMoneyInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') saveDIData();
+    });
+
+    diAhkaysInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') saveDIData();
+    });
+
+    // Hide Overbuy List Table and Number Sequence Table
+    document.getElementById('over-limit-table').style.display = 'none';
+    document.getElementById('number-sequence-table').style.display = '';
+
+ // Add this new function to calculate DI total for a specific number
+        function calculateDITotalForNumber(number) {
+            return diNumberMoneyData
+                .filter(item => item.number === number)
+                .reduce((sum, item) => sum + parseInt(item.money), 0);
+        }
+
+        // Add this new function to highlight DI entries in the table
+        function highlightDIEntries(number) {
+            // Remove previous highlights
+            const diRows = document.querySelectorAll('#di-list-table tr');
+            diRows.forEach(row => {
+                row.classList.remove('highlighted-di');
+            });
+
+            // Highlight matching DI entries
+            diNumberMoneyData.forEach((item, index) => {
+                if (item.number === number) {
+                    const row = diListTable.rows[index];
+                    if (row) row.classList.add('highlighted-di');
+                }
+            });
+        }
+
+     // Add this new function to calculate main list total for a specific number
+        function calculateMainTotalForNumber(number) {
+            return numberMoneyData
+                .filter(item => item.number === number)
+                .reduce((sum, item) => sum + parseInt(item.money), 0);
+        }
+
+        // Add this new function to highlight main list entries
+        function highlightMainEntries(number) {
+            // Remove previous highlights
+            const mainRows = document.querySelectorAll('#list-table tr');
+            mainRows.forEach(row => {
+                row.classList.remove('highlighted-entry');
+            });
+
+            // Highlight matching main entries
+            numberMoneyData.forEach((item, index) => {
+                if (item.number === number) {
+                    const row = listTable.rows[index];
+                    if (row) row.classList.add('highlighted-entry');
+                }
+            });
+        }
+// PNumber ဖျက်ခလုပ်အတွက် event listener ထည့်ပါ
+document.getElementById('clear-pnumber-btn').addEventListener('click', function() {
+    // PNumber input ကိုရှင်းမယ်
+    document.getElementById('pnumber-input').value = '';
+    
+    // လက်ရှိ date/time အတွက် saved PNumber ကိုဖျက်မယ်
+    const storageKey = getCurrentStorageKey();
+    const dateData = JSON.parse(localStorage.getItem(storageKey)) || {};
+    dateData.savedPNumber = '';
+    localStorage.setItem(storageKey, JSON.stringify(dateData));
+    
+    // Summary table ကိုဖျောက်မယ်
+    document.getElementById('summary-table').classList.remove('visible');
+    document.getElementById('summary-prompt').style.display = 'block';
+    
+    // Highlight တွေဖျက်မယ်
+    document.querySelectorAll('.highlighted-number, .highlighted-di, .highlighted-entry').forEach(el => {
+        el.classList.remove('highlighted-number', 'highlighted-di', 'highlighted-entry');
+    });
+    
+    // Payout input ကိုပါရှင်းမယ်
+    document.getElementById('payout-input').value = '';
+    document.getElementById('di-total-display').value = '';
+    document.getElementById('main-total-display').value = '';
+});
+
+// Add this function to save PNumber for current date/time
+function savePNumberByDateTime(pnumber) {
+    const storageKey = getCurrentStorageKey();
+    const dateData = JSON.parse(localStorage.getItem(storageKey)) || {};
+    dateData.savedPNumber = pnumber;
+    localStorage.setItem(storageKey, JSON.stringify(dateData));
+}
+
+// Add this function to load PNumber for current date/time
+function loadPNumberByDateTime() {
+    const storageKey = getCurrentStorageKey();
+    const dateData = JSON.parse(localStorage.getItem(storageKey)) || {};
+    return dateData.savedPNumber || '';
+}
+
+
+
+
+
+   // pnumber input change event listener
+document.getElementById('pnumber-input').addEventListener('input', function() {
+    const pnumber = this.value.padStart(2, '0');
+ // Save the pnumber whenever it changes
+    if (pnumber.length === 2) {
+        savePNumberByDateTime(pnumber);
+    }
+       const summaryTable = document.getElementById('summary-table');
+    const summaryPrompt = document.getElementById('summary-prompt');
+    
+    // Prompt ကိုပြမယ်
+    summaryPrompt.style.display = 'block';
+    
+    // Empty check
+    if(!this.value || this.value.trim() === '') {
+
+        summaryTable.classList.remove('visible');
+        return;
+    }
+    
+    // Number validation
+    if(isNaN(this.value)) {
+        summaryTable.classList.remove('visible');
+        return;
+    }
+    
+    if(pnumber.length === 2) {
+     
+addSummaryData();
+        renderSummaryTable();
+        summaryTable.classList.add('visible');
+        summaryPrompt.style.display = 'none'; 
+        // Calculate money for this number from sequence table
+        const totalMoney = calculateMoneyForNumber(pnumber);
+             const diMoney = calculateDITotalForNumber(pnumber);
+  const mainMoney = calculateMainTotalForNumber(pnumber);
+
+        // Fill the payout input
+        document.getElementById('payout-input').value = totalMoney;
+        document.getElementById('di-total-display').value = diMoney;
+document.getElementById('main-total-display').value = mainMoney;
+        // Highlight the number in sequence table (optional)
+        highlightNumberInSequenceTable(pnumber);
+highlightDIEntries(pnumber);
+highlightMainEntries(pnumber);
+const firstHighlighted = document.querySelector('.highlighted-entry');
+                if (firstHighlighted) {
+                    firstHighlighted.scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+
+
+
+    }
+});
+
+// Helper function to highlight number in sequence table
+function highlightNumberInSequenceTable(number) {
+    // Remove previous highlights
+    document.querySelectorAll('#number-sequence-table td').forEach(cell => {
+        cell.classList.remove('highlighted-number');
+    });
+    
+    // Find and highlight the cell
+    const cells = document.querySelectorAll('#number-sequence-table td');
+    for(let cell of cells) {
+        if(cell.textContent === number) {
+            cell.classList.add('highlighted-number');
+            cell.scrollIntoView({behavior: 'smooth', block: 'center'});
+            break;
+        }
+    }
+}
+
+function calculateMoneyForNumber(number) {
+    // Calculate from both main data and DI data
+    const mainMoney = numberMoneyData
+        .filter(item => item.number === number)
+        .reduce((sum, item) => sum + parseInt(item.money), 0);
+    
+    const diMoney = diNumberMoneyData
+        .filter(item => item.number === number)
+        .reduce((sum, item) => sum - parseInt(item.money), 0);
+    
+    return mainMoney + diMoney;
+}
+// name-input change event listener
+document.getElementById('name-input').addEventListener('input', function() {
+    renderListTable();
+});
+
+// diname-input change event listener
+document.getElementById('diname-input').addEventListener('input', function() {
+    renderDIListTable();
+});
+
+
+
+
+// Update the addSummaryData function to include DI list calculations
+function addSummaryData() {
+    const pnumber = document.getElementById('pnumber-input').value.padStart(2, '0');
+    const commission = 15; // Fixed 15%
+    const multiplier = 80; // Fixed 80
+    
+    // Group by name and calculate totals from both main and DI lists
+    const nameGroups = {};
+    
+    // Process main list table data
+    numberMoneyData.forEach(item => {
+        if (!nameGroups[item.name]) {
+            nameGroups[item.name] = {
+                totalMoney: 0,
+                pMoney: 0,
+                diTotalMoney: 0,
+                diPMoney: 0,
+namePMoney: 0
+
+            };
+        }
+        nameGroups[item.name].totalMoney += parseInt(item.money);
+        
+        // Check if this is the pnumber for this name
+        if (pnumber && item.number === pnumber) {
+            nameGroups[item.name].pMoney += parseInt(item.money);
+        }
+    });
+
+    // Process DI list table data (subtract from totals)
+    diNumberMoneyData.forEach(item => {
+        if (!nameGroups[item.name]) {
+            nameGroups[item.name] = {
+                totalMoney: 0,
+                pMoney: 0,
+                diTotalMoney: 0,
+                diPMoney: 0,
+namePMoney: 0
+            };
+        }
+        nameGroups[item.name].diTotalMoney += parseInt(item.money);
+        
+        // Check if this is the pnumber for this name
+        if (pnumber && item.number === pnumber) {
+            nameGroups[item.name].diPMoney += parseInt(item.money);
+        }
+    });
+
+  // Calculate NameP value
+  for (const name in nameGroups) {
+    nameGroups[name].namePMoney = nameGroups[name].pMoney - nameGroups[name].diPMoney;
+  }
+
+    // Clear existing summary data
+    summaryData = [];
+
+    // Create summary entries with combined calculations
+    for (const name in nameGroups) {
+        const netTotalMoney = nameGroups[name].totalMoney - nameGroups[name].diTotalMoney;
+        const netPMoney = (nameGroups[name].pMoney - nameGroups[name].diPMoney) * multiplier;
+        
+        // Calculate result money: netTotalMoney - (netTotalMoney * commission / 100)
+        const resultMoney = netTotalMoney - (netTotalMoney * commission / 100)-netPMoney;
+        
+        summaryData.push({
+            name: name,
+            nameTotalMoney: netTotalMoney,
+            commission: commission + '%',
+            multiplier: multiplier,
+namePMoney: nameGroups[name].namePMoney, // Add NameP value
+      namePMoneyMultiplied: netPMoney, // Multiplied value
+      resultMoney: resultMoney,
+            statementResult: resultMoney >= 0 ? 'Profit' : 'Loss'
+        });
+    }
+
+    localStorage.setItem('summaryData', JSON.stringify(summaryData));
+    renderSummaryTable();
+}
+
+// Update the renderSummaryTable function to show DI information
+function renderSummaryTable() {
+    const table = document.getElementById('summary-table').getElementsByTagName('tbody')[0];
+    table.innerHTML = '';
+    
+    summaryData.forEach(item => {
+    const row = table.insertRow();
+    
+    row.insertCell(0).textContent = item.name || '-';
+    row.insertCell(1).textContent = item.nameTotalMoney.toLocaleString();
+    row.insertCell(2).textContent = item.commission;
+    row.insertCell(3).textContent = item.multiplier;
+    row.insertCell(4).textContent = item.namePMoney.toLocaleString(); // NameP column
+    row.insertCell(5).textContent = (item.namePMoney * item.multiplier).toLocaleString(); // NameP × Multiplier
+    row.insertCell(6).textContent = item.resultMoney.toLocaleString();
+    
+    const resultCell = row.insertCell(7);
+    resultCell.textContent = item.statementResult;
+    resultCell.classList.add(item.statementResult === 'Profit' ? 'profit' : 'loss');
+  });
+}
+
+// Dialog control variables
+let currentEditField = null;
+let currentEditRow = null;
+
+// Open edit dialog when clicking on commission or multiplier
+document.getElementById('summary-table').addEventListener('click', function(e) {
+  const cell = e.target.closest('td');
+  if (!cell) return;
+  
+  const row = cell.closest('tr');
+  const cellIndex = cell.cellIndex;
+  
+  // Check if clicked on Commission (index 2) or Multiplier (index 3)
+  if (cellIndex === 2 || cellIndex === 3) {
+    currentEditField = cellIndex === 2 ? 'commission' : 'multiplier';
+    currentEditRow = row.rowIndex - 1; // Subtract 1 for header row
+    
+    // Get current value (remove % if commission)
+    let currentValue = cell.textContent;
+    if (currentEditField === 'commission') {
+      currentValue = currentValue.replace('%', '');
+    }
+    
+    // Show dialog
+    document.getElementById('edit-value').value = currentValue;
+    document.getElementById('edit-dialog').style.display = 'block';
+  }
+});
+
+// Close dialog
+document.querySelector('.close').addEventListener('click', function() {
+  document.getElementById('edit-dialog').style.display = 'none';
+});
+
+// Save edited value
+document.getElementById('save-edit').addEventListener('click', function() {
+  const newValue = document.getElementById('edit-value').value;
+  
+  if (newValue && !isNaN(newValue)) {
+    // Update summary data
+    if (currentEditField === 'commission') {
+      summaryData[currentEditRow].commission = newValue + '%';
+    } else {
+      summaryData[currentEditRow].multiplier = parseInt(newValue);
+    }
+    
+    // Recalculate results
+    recalculateRow(currentEditRow);
+    
+    // Update localStorage and table
+    localStorage.setItem('summaryData', JSON.stringify(summaryData));
+    renderSummaryTable();
+  }
+  
+  // Close dialog
+  document.getElementById('edit-dialog').style.display = 'none';
+});
+
+// Recalculate a single row
+function recalculateRow(rowIndex) {
+  const rowData = summaryData[rowIndex];
+  const commissionPercent = parseInt(rowData.commission);
+  const multiplier = rowData.multiplier;
+  
+  // Recalculate P Money (if pnumber is set)
+  const pnumber = document.getElementById('pnumber-input').value.padStart(2, '0');
+  if (pnumber) {
+    // You'll need to implement this based on your actual data structure
+    // This is just a placeholder logic
+    rowData.namePMoneyMultiplied = calculatePMoneyForName(rowData.name, pnumber) * multiplier;
+  }
+  
+  // Recalculate Result Money
+  rowData.resultMoney = rowData.nameTotalMoney - (rowData.nameTotalMoney * commissionPercent / 100)-rowData.namePMoney ;
+  rowData.statementResult = rowData.resultMoney >= 0 ? 'Profit' : 'Loss';
+}
+
+// Helper function to calculate P Money for a name (you need to implement this properly)
+function calculatePMoneyForName(name, pnumber) {
+  let total = 0;
+  
+  // Calculate from main list
+  numberMoneyData.forEach(item => {
+    if (item.name === name && item.number === pnumber) {
+      total += parseInt(item.money);
+    }
+  });
+  
+  // Subtract DI amounts
+  diNumberMoneyData.forEach(item => {
+    if (item.name === name && item.number === pnumber) {
+      total -= parseInt(item.money);
+    }
+  });
+  
+  return total;
+}
+
+// Close dialog when clicking outside
+window.addEventListener('click', function(event) {
+  if (event.target === document.getElementById('edit-dialog')) {
+    document.getElementById('edit-dialog').style.display = 'none';
+  }
+});
+// JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+  const dateTimeBtn = document.getElementById('date-time-btn');
+  const calendarPopup = document.getElementById('calendar-popup');
+  const displayDate = document.getElementById('display-date');
+  const displayTime = document.getElementById('display-time');
+  const calendarBody = document.getElementById('calendar-body');
+  const currentMonthEl = document.getElementById('current-month');
+  const prevMonthBtn = document.getElementById('prev-month');
+  const nextMonthBtn = document.getElementById('next-month');
+  const timeOptions = document.querySelectorAll('.time-option');
+  
+  let currentDate = new Date();
+  let selectedDate = new Date();
+  let selectedTime = 'AM';
+
+  
+  // Initialize
+  updateDisplay();
+  generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+
+updateDateTimeDisplay(); // Initialize immediately
+  setInterval(updateDateTimeDisplay, 6000000); 
+
+  
+  // Toggle calendar popup
+  dateTimeBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    calendarPopup.style.display = calendarPopup.style.display === 'block' ? 'none' : 'block';
+  });
+
+  
+  // Close calendar when clicking outside
+  document.addEventListener('click', function() {
+    calendarPopup.style.display = 'none';
+  });
+  
+  // Prevent calendar from closing when clicking inside
+  calendarPopup.addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
+  
+  // Month navigation
+  prevMonthBtn.addEventListener('click', function() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+  });
+  
+  nextMonthBtn.addEventListener('click', function() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+  });
+  
+  // Time selection
+  timeOptions.forEach(option => {
+    option.addEventListener('click', function() {
+      timeOptions.forEach(opt => opt.classList.remove('active'));
+      this.classList.add('active');
+      selectedTime = this.dataset.time;
+      updateDisplay();
+    });
+  });
+  
+  // Generate calendar
+  function generateCalendar(year, month) {
+    calendarBody.innerHTML = '';
+    currentMonthEl.textContent = new Date(year, month).toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric'
+    });
+    
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    let date = 1;
+    for (let i = 0; i < 6; i++) {
+      const row = document.createElement('tr');
+      
+      for (let j = 0; j < 7; j++) {
+        const cell = document.createElement('td');
+        
+        if (i === 0 && j < firstDay) {
+          // Empty cells before first day
+          row.appendChild(cell);
+        } else if (date > daysInMonth) {
+          // Empty cells after last day
+          row.appendChild(cell);
+        } else {
+          // Date cells
+          cell.textContent = date;
+          cell.dataset.date = date;
+          
+          // Highlight today
+          const today = new Date();
+          if (date === today.getDate() && 
+              month === today.getMonth() && 
+              year === today.getFullYear()) {
+            cell.classList.add('today');
+          }
+          
+          // Highlight selected date
+          if (date === selectedDate.getDate() && 
+              month === selectedDate.getMonth() && 
+              year === selectedDate.getFullYear()) {
+            cell.classList.add('selected');
+          }
+          
+          cell.addEventListener('click', function() {
+            selectedDate = new Date(year, month, parseInt(this.dataset.date));
+            generateCalendar(year, month);
+            updateDisplay();
+          });
+          
+          row.appendChild(cell);
+          date++;
+        }
+      }
+      
+      calendarBody.appendChild(row);
+      if (date > daysInMonth) break;
+    }
+  }
+  
+  // Update button display
+  function updateDisplay() {
+    const formattedDate = [
+      selectedDate.getDate().toString().padStart(2, '0'),
+      (selectedDate.getMonth() + 1).toString().padStart(2, '0'),
+      selectedDate.getFullYear()
+    ].join('-');
+    
+    displayDate.textContent = formattedDate;
+    displayTime.textContent = selectedTime;
+  }
+});
+document.getElementById('prev-month').addEventListener('click', loadDataByDateTime);
+  document.getElementById('next-month').addEventListener('click', loadDataByDateTime);
+  
+  document.querySelectorAll('.calendar-table td').forEach(cell => {
+    cell.addEventListener('click', () => {
+      setTimeout(loadDataByDateTime, 100); // 0.1s စောင့်ပြီး ဒေတာဖွင့်ရန်
+    });
+  });
+
+  document.querySelectorAll('.time-option').forEach(btn => {
+    btn.addEventListener('click', function() {
+      selectedTime = this.dataset.time;
+      loadDataByDateTime(); // AM/PM ပြောင်းလဲမှုကို တုံ့ပြန်ရန်
+    });
+  });
+// Find All Date Button အတွက် Event Listener ထည့်ပါ
+document.getElementById('find-all-date-btn').addEventListener('click', function() {
+    window.location.href = 'find.html';
+});
+// Check if we're coming from find.html to view specific date
+document.addEventListener('DOMContentLoaded', function() {
+    const viewDate = localStorage.getItem('currentViewDate');
+    const viewTime = localStorage.getItem('currentViewTime');
+    
+    if (viewDate && viewTime) {
+        // Set the date/time picker to the selected values
+        document.getElementById('display-date').textContent = viewDate;
+        document.getElementById('display-time').textContent = viewTime;
+        
+        // Clear the stored view values
+        localStorage.removeItem('currentViewDate');
+        localStorage.removeItem('currentViewTime');
+        
+        // Load the data
+        loadDataByDateTime();
+    } else {
+        // Normal initialization
+        updateDateTimeDisplay();
+    }
+});
+// Event Listeners
+clearAllDateBtn.addEventListener('click', function() {
+  passwordModal.style.display = 'block';
+  passwordInput.focus();
+});
+
+closeModal.addEventListener('click', function() {
+  passwordModal.style.display = 'none';
+  passwordInput.value = '';
+  passwordError.style.display = 'none';
+});
+
+confirmPasswordBtn.addEventListener('click', function() {
+  if (passwordInput.value === CORRECT_PASSWORD) {
+    clearAllDateData();
+    passwordModal.style.display = 'none';
+    passwordInput.value = '';
+    passwordError.style.display = 'none';
+  } else {
+    passwordError.style.display = 'block';
+  }
+});
+
+// Close modal when clicking outside
+window.addEventListener('click', function(event) {
+  if (event.target === passwordModal) {
+    passwordModal.style.display = 'none';
+    passwordInput.value = '';
+    passwordError.style.display = 'none';
+  }
+});
+
+// Clear All Date Data Function
+function clearAllDateData() {
+  // Get all keys from localStorage
+  const keys = Object.keys(localStorage);
+  
+  // Filter keys for ledger and pnumber data
+  const ledgerKeys = keys.filter(key => key.startsWith('ledger_'));
+  const pnumberKeys = keys.filter(key => key.startsWith('pnumber_'));
+  
+  // Delete all matching keys
+  ledgerKeys.forEach(key => localStorage.removeItem(key));
+  pnumberKeys.forEach(key => localStorage.removeItem(key));
+  
+  // Clear current session data
+  numberMoneyData = [];
+  diNumberMoneyData = [];
+  summaryData = [];
+  
+  // Reset UI
+  clearInputs();
+  clearDIInputs();
+  document.getElementById('pnumber-input').value = '';
+  renderAllTables();
+  updateTotalMoney();
+  updateDITotalMoney();
+  updateCalculations();
+  
+  alert('All date data has been cleared successfully!');
+}
+
+ // Initialize app and calculations
+    initApp();
+    updateCalculations();

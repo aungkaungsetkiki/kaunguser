@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Ledger Web Application</title>
+   <link rel="stylesheet" href="indexstyles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>2D Ledger Application</h1>
+        
+        <!-- Date Time Picker -->
+        <div class="date-time-container">
+            <button id="date-time-btn" class="date-time-button">
+                <span id="display-date">13-06-2025</span> / 
+                <span id="display-time">AM</span>
+            </button>
+            
+            <div id="calendar-popup" class="calendar-popup">
+                <div class="calendar-header">
+                    <button id="prev-month">&lt;</button>
+                    <h3 id="current-month">June 2025</h3>
+                    <button id="next-month">&gt;</button>
+                </div>
+                
+                <table class="calendar-table">
+                    <thead>
+                        <tr>
+                            <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calendar-body">
+                        <!-- Calendar days will be generated here -->
+                    </tbody>
+                </table>
+                
+                <div class="time-selection">
+                    <button class="time-option active" data-time="AM">AM</button>
+                    <button class="time-option" data-time="PM">PM</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- List Table -->
+        <h2>List Table</h2>
+        <div class="table-container">
+            <table id="list-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Number</th>
+                        <th>Money</th>
+                        <th>Type</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will appear here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-section">
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="name-input">Name</label>
+                    <input type="text" id="name-input" placeholder="Name">
+                </div>
+                <div class="input-group">
+                    <label for="number-input">Number</label>
+                    <input type="number" id="number-input" maxlength="2" placeholder="00-99" pattern="[0-9]{2}">
+                </div>
+                <div class="input-group">
+                    <label for="function-input">Function Sign</label>
+                    <input type="text" id="function-input" placeholder="/ for reverse">
+                </div>
+                <div class="input-group">
+                    <label for="money-input">Money</label>
+                    <input type="number" id="money-input" min="0" placeholder="0">
+                </div>
+                <div class="input-group" id="r-money-group">
+                    <label for="r-money-input">R Money</label>
+                    <input type="number" id="r-money-input" min="0" placeholder="0">
+                </div>
+                <div class="input-group" id="ahkays-group">
+                    <label for="ahkays-input">Ahkays Numbers</label>
+                    <input type="text" id="ahkays-input" placeholder="e.g. 012">
+                </div>
+            </div>
+            <div class="input-row">
+                <div class="function-selector">
+                    <button id="function-btn">ဒဲ့</button>
+                    <div id="function-list" class="function-list">
+                        <a>ဒဲ့</a>
+                        <a>ဆတူအာ</a>
+                        <a>အပူး</a>
+                        <a>အပါ</a>
+                        <a>ဘရိတ်</a>
+                        <a>ပါဝါ</a>
+                        <a>နက္ခ</a>
+                        <a>ထိပ်</a>
+                        <a>ပိတ်</a>
+                        <a>ညီကို</a>
+                        <a>ကိုညီ</a>
+                        <a>အခွေ</a>
+                        <a>အပူးပါအခွေ</a>
+                    </div>
+                </div>
+                <button id="save-btn">Save (Enter)</button>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary">
+            <div class="summary-box">
+                <h3>Total Money</h3>
+                <p id="total-money">0</p>
+            </div>
+            <div class="summary-box">
+                <h3>Break Money Limit</h3>
+                <input type="number" id="break-limit" min="0" value="1000000">
+                <button id="apply-limit-btn">Apply</button>
+            </div>
+            <div class="summary-box">
+                <h3>Over Limit Total</h3>
+                <p id="over-limit-total">0</p>
+            </div>
+        </div>
+
+        <!-- Overbuy Section -->
+        <div class="overbuy-section">
+            <button id="overbuy-btn">Overbuy</button>
+        </div>
+
+        <!-- Overbuy Modal -->
+        <div id="overbuy-modal" class="overbuy-modal">
+            <div class="overbuy-modal-content">
+                <span class="close-modal">&times;</span>
+                <div class="table-dicontainer">
+                    <table id="overbuy-list-table">
+                        <thead>
+                            <tr>
+                                <th>Number</th>
+                                <th>Over Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will appear here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- DI Input Section -->
+                <div class="diinput-section">
+                    <div class="diinput-row">
+                        <div class="diinput-group">
+                            <label for="diname-input">DiName</label>
+                            <input type="text" id="diname-input" placeholder="DiName">
+                        </div>
+                        <div class="diinput-group">
+                            <label for="dinumber-input">DI Number</label>
+                            <input type="number" id="dinumber-input" maxlength="2" placeholder="00-99" pattern="[0-9]{2}">
+                        </div>
+                        <div class="diinput-group">
+                            <label for="difunction-input">DI Function</label>
+                            <input type="text" id="difunction-input" placeholder="/ for reverse">
+                        </div>
+                        <div class="diinput-group">
+                            <label for="dimoney-input">DI Money</label>
+                            <input type="number" id="dimoney-input" min="0" placeholder="0">
+                        </div>
+                        <div class="diinput-group" id="dir-money-group">
+                            <label for="dir-money-input">DI R Money</label>
+                            <input type="number" id="dir-money-input" min="0" placeholder="0">
+                        </div>
+                        <div class="diinput-group" id="diahkays-group">
+                            <label for="diahkays-input">DI Ahkays</label>
+                            <input type="text" id="diahkays-input" placeholder="e.g. 012">
+                        </div>
+                    </div>
+                    <div class="diinput-row">
+                        <div class="difunction-selector">
+                            <button id="difunction-btn">ဒဲ့</button>
+                            <div id="difunction-list" class="difunction-list">
+                                <a>ဒဲ့</a>
+                                <a>ဆတူအာ</a>
+                                <a>အပူး</a>
+                                <a>အပါ</a>
+                                <a>ဘရိတ်</a>
+                                <a>ပါဝါ</a>
+                                <a>နက္ခ</a>
+                                <a>ထိပ်</a>
+                                <a>ပိတ်</a>
+                                <a>ညီကို</a>
+                                <a>ကိုညီ</a>
+                                <a>အခွေ</a>
+                                <a>အပူးပါအခွေ</a>
+                            </div>
+                        </div>
+                        <button id="disave-btn">DI Save (Enter)</button>
+                    </div>
+                </div>
+
+                <div class="total-ledger-row">
+                    DiTotal Money: <span id="di-total-money">0</span>
+                </div>
+
+                <!-- DI List Table -->
+                <div class="table-container">
+                    <table id="di-list-table">
+                        <thead>
+                            <tr>
+                                <th>Di Name</th>
+                                <th>DI Number</th>
+                                <th>DI Money</th>
+                                <th>DI Type</th>
+                                <th>DI Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Over Limit Table -->
+        <div class="table-container">
+            <table id="over-limit-table">
+                <thead>
+                    <tr>
+                        <th>Number</th>
+                        <th>Original Amount</th>
+                        <th>Over Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will appear here -->
+                </tbody>
+            </table>
+        </div>
+
+        <button id="ledger-btn">Ledger</button>
+
+        <!-- Ledger Modal -->
+        <div id="ledger-modal" class="ledger-modal">
+            <div class="ledger-modal-content">
+                <span class="close-ledger-modal">&times;</span>
+                <h2>Number Sequence Table</h2>
+                <div class="table-container">
+                    <table id="number-sequence-table">
+                        <!-- Table content will be generated by JavaScript -->
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Number Sequence Table with Totals -->
+        <div class="table-container">
+            <table id="number-sequence-table">
+                <thead>
+                    <tr id="header-row">
+                        <!-- Will be populated by JavaScript -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Will be populated by JavaScript -->
+                </tbody>
+                <tfoot id="footer-row">
+                   <!-- Total row will be added here -->
+                </tfoot>
+            </table>
+        </div>
+        
+        <!-- Total Ledger Money Display -->
+        <div class="total-ledger-row">
+            Total Ledger Money: <span id="total-ledger-money">0</span>
+        </div>
+        <div class="total-ledger-row">
+            တင်ကြေး: <span id="di-total-money-display">0</span>
+        </div>
+        <div class="total-ledger-row">
+            ရောင်းကြေးစုပေါင်း: <span id="total-money-display">0</span>
+        </div>
+
+        <!-- Calculation Section -->
+        <div class="calculation-section">
+            <h2>Profit/Loss Calculation</h2>
+            <div class="input-row">
+    <div class="input-group">
+        <label for="pnumber-input">P Number</label>
+        <div style="display: flex; gap: 5px;">
+            <input type="number" id="pnumber-input" maxlength="2" placeholder="00-99" pattern="[0-9]{2}">
+            <button id="clear-pnumber-btn" class="danger" style="width: auto; padding: 8px 12px;">Delete</button>
+        </div>
+    </div>
+            <div class="input-row">
+                <div class="input-group">
+                    <label for="commission-input">Commission (%)</label>
+                    <input type="number" id="commission-input" min="0" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label for="multiplier-input">Multiplier</label>
+                    <input type="number" id="multiplier-input" min="0" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label for="payout-input">Payout</label>
+                    <input type="number" id="payout-input" min="0" placeholder="0">
+                </div>
+                <div class="input-group">
+                    <label for="di-total-display">DI Total for Number</label>
+                    <input type="number" id="di-total-display" placeholder="0" readonly>
+                </div>
+                <div class="input-group">
+                    <label for="main-total-display">Main Total</label>
+                    <input type="number" id="main-total-display" placeholder="0" readonly>
+                </div>
+            </div>
+            <div class="calculation-results">
+                <p>Total Ledger Money: <span id="display-total-ledger-money">0</span></p>
+                <p>Commission Amount: <span id="commission-amount">0</span></p>
+                <p>After Commission: <span id="after-commission">0</span></p>
+                <p>After Payout: <span id="after-payout">0</span></p>
+                <p>Profit/Loss: <span id="profit-loss">0</span></p>
+                <p id="result-status"></p>
+            </div>
+        </div>
+
+        <!-- Summary Prompt -->
+        <div id="summary-prompt" style="display: none; margin: 15px 0; font-style: italic;">
+            P Number ထည့်ပါက Summary Table ပေါ်လာပါမည်
+        </div>
+
+        <!-- Summary Results Table -->
+        <div class="table-container">
+            <table id="summary-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Name Total Money</th>
+                        <th>Commission</th>
+                        <th>Multiplier</th>
+                        <th>NameP</th>
+                        <th>Name P Money</th>
+                        <th>Result Money</th>
+                        <th>Statement Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+       <!-- Clear All Button နားမှာ Find All Date Button ထည့်ပါ -->
+<div style="display: flex; gap: 10px; margin-top: 20px;">
+    <button id="find-all-date-btn" style="background-color: #2196F3; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">Find All Date</button>
+
+
+ <button id="clear-all-btn" class="danger">Clear All Data</button>
+   
+</div>
+
+        <!-- Edit Dialog Box -->
+        <div id="edit-dialog" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Edit Value</h3>
+                <div class="input-group">
+                    <label for="edit-value">New Value:</label>
+                    <input type="number" id="edit-value">
+                </div>
+                <button id="save-edit">Save</button>
+            </div>
+        </div>
+    </div>
+  <div class="calculation-section">
+<!-- Clear All Button အောက်မှာ ဒီ Button ကိုထည့်ပါ -->
+<button id="clear-all-date-btn" class="danger" style="margin-top: 10px;">
+  Clear All Date Data
+</button>
+
+<!-- Password Modal -->
+<div id="password-modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h3>Enter Password</h3>
+    <input type="password" id="password-input" placeholder="Enter password">
+    <button id="confirm-password-btn">Confirm</button>
+    <p id="password-error" style="color:red; display:none;">Incorrect password!</p>
+  </div>
+</div>
+
+    <script src="script.js"</script>
+
+</body>
+</html>>
