@@ -1141,6 +1141,16 @@ document.getElementById('pnumber-input').value = '';
     }
 }
 
+function setFocus(element) {
+    setTimeout(() => {
+        element.focus(); // ပုံမှန် focus လုပ်
+        // Chrome အတွက် အထူးဖြေရှင်းနည်း
+        if (navigator.userAgent.indexOf('Chrome') !== -1) {
+            element.blur(); // ခဏ focus ဖျောက်
+            setTimeout(() => element.focus(), 50); // 50ms စောင့်ပြီး ပြန် focus
+        }
+    }, 100);
+}
 
     // Initialize the app
     function initApp() {
@@ -1152,13 +1162,13 @@ renderSummaryTable();
 updateDITotalMoney();
 loadDataByDateTime(); 
 updateDisplay();
-        numberInput.focus();
+        setFocus(numberInput);
     }
 
     // Auto-focus flow for main input
     numberInput.addEventListener('input', function() {
         if (this.value.length === 2) {
-            functionInput.focus();
+            setFocus(functionInput);
         }
     });
 
@@ -1183,73 +1193,73 @@ updateDisplay();
             ahkaysGroup.style.display = 'none';
             functionBtn.textContent = 'ဆတူအာ';
             functionBtn.style.backgroundColor = '#4CAF50';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (funcSign.includes('+')) {
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.textContent = 'အပူး';
             functionBtn.style.backgroundColor = '#FF9800';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (funcSign.includes('a')) {
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.textContent = 'အပါ';
             functionBtn.style.backgroundColor = '#9C27B0';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (funcSign.includes('b')) {
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.textContent = 'ဘရိတ်';
             functionBtn.style.backgroundColor = '#607d8b';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (funcSign.includes('p')) {
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.textContent = 'ပါဝါ';
             functionBtn.style.backgroundColor = '#5C6BC0';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (funcSign.includes('k')) {
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.textContent = 'နက္ခ';
             functionBtn.style.backgroundColor = '#26A69A';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (funcSign.includes('t')) {
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.textContent = 'ထိပ်';
             functionBtn.style.backgroundColor = '#FF5722';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (funcSign.includes('d')) {
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.textContent = 'ပိတ်';
             functionBtn.style.backgroundColor = '#795548';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (funcSign.includes('sg')) {
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.textContent = 'ညီကို';
             functionBtn.style.backgroundColor = '#EC407A';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (funcSign.includes('gs')) {
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.textContent = 'ကိုညီ';
             functionBtn.style.backgroundColor = '#AB47BC';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (funcSign.includes('x')) {
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'block';
             functionBtn.textContent = 'အခွေ';
             functionBtn.style.backgroundColor = '#8D6E63';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (funcSign.includes('z')) {
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'block';
             functionBtn.textContent = 'အပူးပါအခွေ';
             functionBtn.style.backgroundColor = '#7E57C2';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else {
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
@@ -1295,73 +1305,73 @@ updateDisplay();
             rMoneyGroup.style.display = 'block';
             ahkaysGroup.style.display = 'none';
             functionBtn.style.backgroundColor = '#4CAF50';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (text === 'အပူး') {
             functionInput.value = '+';
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.style.backgroundColor = '#FF9800';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (text === 'အပါ') {
             functionInput.value = 'a';
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.style.backgroundColor = '#9C27B0';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (text === 'ဘရိတ်') {
             functionInput.value = 'b';
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.style.backgroundColor = '#607d8b';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (text === 'ပါဝါ') {
             functionInput.value = 'p';
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.style.backgroundColor = '#5C6BC0';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (text === 'နက္ခ') {
             functionInput.value = 'k';
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.style.backgroundColor = '#26A69A';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (text === 'ထိပ်') {
             functionInput.value = 't';
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.style.backgroundColor = '#FF5722';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (text === 'ပိတ်') {
             functionInput.value = 'd';
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.style.backgroundColor = '#795548';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (text === 'ညီကို') {
             functionInput.value = 'sg';
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.style.backgroundColor = '#EC407A';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (text === 'ကိုညီ') {
             functionInput.value = 'gs';
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
             functionBtn.style.backgroundColor = '#AB47BC';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (text === 'အခွေ') {
             functionInput.value = 'x';
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'block';
             functionBtn.style.backgroundColor = '#8D6E63';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else if (text === 'အပူးပါအခွေ') {
             functionInput.value = 'z';
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'block';
             functionBtn.style.backgroundColor = '#7E57C2';
-            moneyInput.focus();
+            setFocus(moneyInput);
         } else {
             rMoneyGroup.style.display = 'none';
             ahkaysGroup.style.display = 'none';
@@ -1704,13 +1714,13 @@ document.getElementById('total-money-display').textContent = total;
     }
         if (!number || number.length !== 2 || isNaN(number)) {
             alert('Please enter a valid 2-digit number');
-            numberInput.focus();
+            setFocus(numberInput);
             return;
         }
 
         if (!money || isNaN(money) || money < 0) {
             alert('Please enter a valid money amount');
-            moneyInput.focus();
+            setFocus(moneyInput);
             return;
         }
 
@@ -2137,7 +2147,7 @@ addSummaryData();
         updateTotalMoney();
 updateDITotalMoney();
 addSummaryData();
-        numberInput.focus();
+        setFocus(numberInput);
     }
 
     // Edit DI item
@@ -2321,7 +2331,7 @@ updateDITotalMoney();
         ahkaysGroup.style.display = 'none';
         functionBtn.textContent = 'ဒဲ့';
         functionBtn.style.backgroundColor = '#2196F3';
-        numberInput.focus();
+        setFocus(numberInput);
     }
 
     // Clear DI input fields
@@ -3073,129 +3083,6 @@ function clearAllDateData() {
  // Initialize app and calculations
     initApp();
     updateCalculations();
-</script>
-
-<script>
-    // Keyboard navigation for main input section
-    document.getElementById('name-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            document.getElementById('number-input').focus();
-        }
-    });
-
-    document.getElementById('number-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (this.value.length === 2) {
-                document.getElementById('function-input').focus();
-            }
-        }
-    });
-
-    document.getElementById('function-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            document.getElementById('money-input').focus();
-        }
-    });
-
-    document.getElementById('money-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (document.getElementById('r-money-group').style.display === 'block') {
-                document.getElementById('r-money-input').focus();
-            } else if (document.getElementById('ahkays-group').style.display === 'block') {
-                document.getElementById('ahkays-input').focus();
-            } else {
-                saveData();
-                document.getElementById('number-input').focus();
-            }
-        }
-    });
-
-    document.getElementById('r-money-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (document.getElementById('ahkays-group').style.display === 'block') {
-                document.getElementById('ahkays-input').focus();
-            } else {
-                saveData();
-                document.getElementById('number-input').focus();
-            }
-        }
-    });
-
-    document.getElementById('ahkays-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            saveData();
-            document.getElementById('number-input').focus();
-        }
-    });
-
-    // Keyboard navigation for DI input section
-    document.getElementById('diname-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            document.getElementById('dinumber-input').focus();
-        }
-    });
-
-    document.getElementById('dinumber-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (this.value.length === 2) {
-                document.getElementById('difunction-input').focus();
-            }
-        }
-    });
-
-    document.getElementById('difunction-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            document.getElementById('dimoney-input').focus();
-        }
-    });
-
-    document.getElementById('dimoney-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (document.getElementById('dir-money-group').style.display === 'block') {
-                document.getElementById('dir-money-input').focus();
-            } else if (document.getElementById('diahkays-group').style.display === 'block') {
-                document.getElementById('diahkays-input').focus();
-            } else {
-                saveDIData();
-                document.getElementById('dinumber-input').focus();
-            }
-        }
-    });
-
-    document.getElementById('dir-money-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (document.getElementById('diahkays-group').style.display === 'block') {
-                document.getElementById('diahkays-input').focus();
-            } else {
-                saveDIData();
-                document.getElementById('dinumber-input').focus();
-            }
-        }
-    });
-
-    document.getElementById('diahkays-input').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            saveDIData();
-            document.getElementById('dinumber-input').focus();
-        }
-    });
-
-    // Auto-focus number input when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('number-input').focus();
-    });
 </script>
 
 </body>
