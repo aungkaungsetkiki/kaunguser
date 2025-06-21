@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2D Ledger Web Application</title>
+    <title>2D Ledger Web Application - Enter Key Fixed</title>
     <style>
         /* Main Body Styles */
         body {
@@ -608,12 +608,22 @@
   cursor: pointer;
 }
 
-
+/* Fix for Enter Key */
+.key-fix-notice {
+    background-color: #e8f5e9;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    text-align: center;
+    font-weight: bold;
+    color: #2e7d32;
+}
     </style>
 </head>
 <body>
     <div class="container">
         <h1>2D Ledger Application</h1>
+        <div class="key-fix-notice">✅ Laptop Chrome အတွက် Enter Key ပြဿနာ ပြင်ဆင်ပြီးပါပြီ</div>
         
         <!-- Date Time Picker -->
         <div class="date-time-container">
@@ -998,58 +1008,52 @@
 </div>
 
     <script>
-    
+    // ========== ENTER KEY FIX FOR LAPTOP ==========
+    // Add event listeners for Enter key in all input fields
+    document.getElementById('name-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('number-input').focus();
+        }
+    });
 
+    document.getElementById('number-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('function-input').focus();
+        }
+    });
 
+    document.getElementById('function-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('money-input').focus();
+        }
+    });
 
+    // DI section
+    document.getElementById('diname-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('dinumber-input').focus();
+        }
+    });
 
+    document.getElementById('dinumber-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('difunction-input').focus();
+        }
+    });
 
-        <!-- Event listeners for Enter key in all input fields -->
+    document.getElementById('difunction-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('dimoney-input').focus();
+        }
+    });
 
-// Add event listeners for Enter key in main input fields
-document.getElementById('name-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('number-input').focus();
-    }
-});
-
-document.getElementById('number-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('function-input').focus();
-    }
-});
-
-document.getElementById('function-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('money-input').focus();
-    }
-});
-
-// Add event listeners for Enter key in DI input fields
-document.getElementById('diname-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('dinumber-input').focus();
-    }
-});
-
-document.getElementById('dinumber-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('difunction-input').focus();
-    }
-});
-
-document.getElementById('difunction-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('dimoney-input').focus();
-    }
-});
-
+    // ========== END OF ENTER KEY FIX ==========
 
     // DOM Elements
     const numberInput = document.getElementById('number-input');
@@ -3134,9 +3138,6 @@ function clearAllDateData() {
  // Initialize app and calculations
     initApp();
     updateCalculations();
-
-
-
 </script>
 
 </body>
