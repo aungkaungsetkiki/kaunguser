@@ -1000,6 +1000,57 @@
     <script>
     
 
+
+
+
+
+        <!-- Event listeners for Enter key in all input fields -->
+
+// Add event listeners for Enter key in main input fields
+document.getElementById('name-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('number-input').focus();
+    }
+});
+
+document.getElementById('number-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('function-input').focus();
+    }
+});
+
+document.getElementById('function-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('money-input').focus();
+    }
+});
+
+// Add event listeners for Enter key in DI input fields
+document.getElementById('diname-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('dinumber-input').focus();
+    }
+});
+
+document.getElementById('dinumber-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('difunction-input').focus();
+    }
+});
+
+document.getElementById('difunction-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('dimoney-input').focus();
+    }
+});
+
+
     // DOM Elements
     const numberInput = document.getElementById('number-input');
     const functionInput = document.getElementById('function-input');
@@ -3085,52 +3136,6 @@ function clearAllDateData() {
     updateCalculations();
 
 
-
-<!-- Event listeners for Enter key in all input fields -->
-
-// Add event listeners for Enter key in main input fields
-document.getElementById('name-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('number-input').focus();
-    }
-});
-
-document.getElementById('number-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('function-input').focus();
-    }
-});
-
-document.getElementById('function-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('money-input').focus();
-    }
-});
-
-// Add event listeners for Enter key in DI input fields
-document.getElementById('diname-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('dinumber-input').focus();
-    }
-});
-
-document.getElementById('dinumber-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('difunction-input').focus();
-    }
-});
-
-document.getElementById('difunction-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('dimoney-input').focus();
-    }
-});
 
 </script>
 
