@@ -1040,11 +1040,33 @@ document.getElementById('money-input').addEventListener('keypress', function(e) 
             else if (document.getElementById('ahkays-group').style.display === 'block') {
                 document.getElementById('ahkays-input').focus();
             } 
-            
-             }
+            // Otherwise save the data
+            else {
+                saveData();
+            }
+        }
     });
 
-    
+    document.getElementById('r-money-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            // Check if ahkays-group is visible
+            if (document.getElementById('ahkays-group').style.display === 'block') {
+                document.getElementById('ahkays-input').focus();
+            } 
+            // Otherwise save the data
+            else {
+                saveData();
+            }
+        }
+    });
+
+    document.getElementById('ahkays-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveData();
+        }
+    });
 
     // DI section
     document.getElementById('diname-input').addEventListener('keypress', function(e) {
@@ -1078,11 +1100,34 @@ document.getElementById('dimoney-input').addEventListener('keypress', function(e
             else if (document.getElementById('diahkays-group').style.display === 'block') {
                 document.getElementById('diahkays-input').focus();
             } 
-          
+            // Otherwise save the data
+            else {
+                saveData();
+            }
         }
     });
 
-    
+    document.getElementById('dir-money-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            // Check if ahkays-group is visible
+            if (document.getElementById('diahkays-group').style.display === 'block') {
+                document.getElementById('diahkays-input').focus();
+            } 
+            // Otherwise save the data
+            else {
+                saveData();
+            }
+        }
+    });
+
+    document.getElementById('diahkays-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveData();
+        }
+    });
+
     // ========== END OF ENTER KEY FIX ==========
 
     // DOM Elements
@@ -1248,6 +1293,7 @@ updateDITotalMoney();
 loadDataByDateTime(); 
 updateDisplay();
         setFocus(numberInput);
+document.getElementById('name-input').focus();
     }
 
     // Auto-focus flow for main input
@@ -1786,11 +1832,13 @@ document.getElementById('total-money-display').textContent = total;
 
     // Save data
     function saveData() {
-        const number = numberInput.value;
+     
+       const number = numberInput.value;
         const money = (moneyInput.value)*100;
         const rMoney = (rMoneyInput.value)*100;
         const ahkays = ahkaysInput.value;
  const name = document.getElementById('name-input').value;
+
 
    if (!name || name.trim() === '') {
         alert('ကျေးဇူးပြု၍ Name ထည့်ပါ');
@@ -1798,7 +1846,7 @@ document.getElementById('total-money-display').textContent = total;
         return;
     }
         if (!number || number.length !== 2 || isNaN(number)) {
-            alert('Please enter a valid 2-digit number');
+            
             setFocus(numberInput);
             return;
         }
@@ -1995,14 +2043,14 @@ addSummaryData();
         const ahkays = diAhkaysInput.value;
  const diName = document.getElementById('diname-input').value;
  if (!diName || diName.trim() === '') {
-        alert('ကျေးဇူးပြု၍ DI Name ထည့်ပါ');
+        
         document.getElementById('diname-input').focus();
         return;
     }
 
 
         if (!number || number.length !== 2 || isNaN(number)) {
-            alert('Please enter a valid 2-digit number');
+            
             diNumberInput.focus();
             return;
         }
@@ -2417,6 +2465,7 @@ updateDITotalMoney();
         functionBtn.textContent = 'ဒဲ့';
         functionBtn.style.backgroundColor = '#2196F3';
         setFocus(numberInput);
+
     }
 
     // Clear DI input fields
