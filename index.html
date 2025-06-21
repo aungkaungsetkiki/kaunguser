@@ -1027,7 +1027,12 @@ document.getElementById('function-input').addEventListener('keypress', function(
         document.getElementById('money-input').focus();
     }
 });
-
+document.getElementById('money-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('r-money-input').focus();
+    }
+});
 // Add event listeners for Enter key in DI input fields
 document.getElementById('diname-input').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
