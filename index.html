@@ -1029,6 +1029,22 @@
             document.getElementById('money-input').focus();
         }
     });
+document.getElementById('money-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            // Check if r-money-group is visible
+            if (document.getElementById('r-money-group').style.display === 'block') {
+                document.getElementById('r-money-input').focus();
+            } 
+            // Check if ahkays-group is visible
+            else if (document.getElementById('ahkays-group').style.display === 'block') {
+                document.getElementById('ahkays-input').focus();
+            } 
+            
+             }
+    });
+
+    
 
     // DI section
     document.getElementById('diname-input').addEventListener('keypress', function(e) {
@@ -1051,7 +1067,22 @@
             document.getElementById('dimoney-input').focus();
         }
     });
+document.getElementById('dimoney-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            // Check if dir-money-group is visible
+            if (document.getElementById('dir-money-group').style.display === 'block') {
+                document.getElementById('dir-money-input').focus();
+            } 
+            // Check if ahkays-group is visible
+            else if (document.getElementById('diahkays-group').style.display === 'block') {
+                document.getElementById('diahkays-input').focus();
+            } 
+          
+        }
+    });
 
+    
     // ========== END OF ENTER KEY FIX ==========
 
     // DOM Elements
