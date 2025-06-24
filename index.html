@@ -1,1 +1,596 @@
-ဘာလာကြည့်တာလည်း
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KK-User Loan Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .loan-item {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .loan-item:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+            transform: translateX(5px);
+        }
+        
+        .badge-count {
+            background-color: var(--accent-color);
+        }
+        
+        .badge-loan {
+            background-color: #4ad66d;
+        }
+        
+        .badge-repaid {
+            background-color: #ff9e00;
+        }
+        
+        .badge-remaining {
+            background-color: #f72585;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+        
+        .search-bar {
+            position: relative;
+        }
+        
+        .search-bar i {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            color: #adb5bd;
+        }
+        
+        .search-input {
+            padding-left: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header mb-4">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h3 mb-0">ချေးငွေစီမံခန့်ခွဲမှုစနစ်</h1>
+                <div class="search-bar w-50">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="searchName" class="form-control search-input" placeholder="အမည်ရှာရန်...">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">ချေးငွေစာရင်း</h5>
+                        <button class="btn btn-sm btn-outline-primary" id="clearAllBtn">
+                            <i class="bi bi-trash-fill"></i> အားလုံးဖျက်ရန်
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>အမည်</th>
+                                        <th class="text-center">ဦးရေ</th>
+                                        <th class="text-end">ချေးငွေ</th>
+                                        <th class="text-end">ချေးငွေပေါင်း</th>
+                                        <th class="text-end">ပြန်ဆပ်ငွေ</th>
+                                        <th class="text-end">ကျန်ငွေ</th>
+                                        <th class="text-center">လုပ်ဆောင်ချက်</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="loanList">
+                                    <!-- Loans will be added here dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">စုစုပေါင်းအချက်အလက်</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="p-3 bg-light rounded">
+                                    <h6 class="text-muted mb-2">စုစုပေါင်းချေးငွေ</h6>
+                                    <h4 class="mb-0"><span id="totalLoans">0</span> ကျပ်</h4>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-light rounded">
+                                    <h6 class="text-muted mb-2">စုစုပေါင်းပြန်ဆပ်ငွေ</h6>
+                                    <h4 class="mb-0"><span id="totalRepaid">0</span> ကျပ်</h4>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-light rounded">
+                                    <h6 class="text-muted mb-2">စုစုပေါင်းကျန်ငွေ</h6>
+                                    <h4 class="mb-0"><span id="totalRemaining">0</span> ကျပ်</h4>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 bg-light rounded">
+                                    <h6 class="text-muted mb-2">စုစုပေါင်းလူများ</h6>
+                                    <h4 class="mb-0"><span id="totalPeople">0</span> ဦး</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">ချေးငွေသစ်ထည့်ရန်</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="loanForm">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">အမည်</label>
+                                <input type="text" class="form-control" id="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="count" class="form-label">ဦးရေ</label>
+                                <input type="number" class="form-control" id="count" min="1" value="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">ချေးငွေ (ကျပ်)</label>
+                                <input type="number" class="form-control" id="amount" min="1000" step="1000" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-save-fill"></i> သိမ်းမည်
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">ညွှန်ကြားချက်များ</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex align-items-center">
+                                <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                                အမည်ကို ရှာဖွေရန် အပေါ်ဆုံးရှိ ရှာဖွေရန် box တွင်ရိုက်ထည့်ပါ
+                            </li>
+                            <li class="list-group-item d-flex align-items-center">
+                                <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                                စာရင်းရှိ အချက်အလက်များကို နှိပ်ပါက ပြင်ဆင်နိုင်သော dialog box ပေါ်လာမည်
+                            </li>
+                            <li class="list-group-item d-flex align-items-center">
+                                <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                                ထပ်တိုး၊ ပြန်ဆပ်ခြင်းများကို သက်ဆိုင်ရာ column တွင် နှိပ်၍ ပြင်ဆင်နိုင်ပါသည်
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Loan Modal -->
+    <div class="modal fade" id="editLoanModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">ချေးငွေပြင်ဆင်ရန်</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editLoanForm">
+                        <input type="hidden" id="editLoanId">
+                        <div class="mb-3">
+                            <label for="editName" class="form-label">အမည်</label>
+                            <input type="text" class="form-control" id="editName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCount" class="form-label">ဦးရေ</label>
+                            <input type="number" class="form-control" id="editCount" min="1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAmount" class="form-label">ချေးငွေ (ကျပ်)</label>
+                            <input type="number" class="form-control" id="editAmount" min="1000" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editRepaid" class="form-label">ပြန်ဆပ်ငွေ (ကျပ်)</label>
+                            <input type="number" class="form-control" id="editRepaid" min="0" value="0">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ပယ်ဖျက်မည်</button>
+                    <button type="button" class="btn btn-primary" id="saveEditBtn">သိမ်းမည်</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Repayment Modal -->
+    <div class="modal fade" id="addRepaymentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">ပြန်ဆပ်ငွေထည့်ရန်</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addRepaymentForm">
+                        <input type="hidden" id="repaymentLoanId">
+                        <div class="mb-3">
+                            <label for="repaymentAmount" class="form-label">ပြန်ဆပ်ငွေ (ကျပ်)</label>
+                            <input type="number" class="form-control" id="repaymentAmount" min="1" required>
+                            <div class="form-text">လက်ရှိကျန်ငွေ: <span id="currentRemaining">0</span> ကျပ်</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ပယ်ဖျက်မည်</button>
+                    <button type="button" class="btn btn-primary" id="saveRepaymentBtn">သိမ်းမည်</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Count Modal -->
+    <div class="modal fade" id="addCountModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">လူဦးရေထပ်တိုးရန်</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCountForm">
+                        <input type="hidden" id="countLoanId">
+                        <div class="mb-3">
+                            <label for="additionalCount" class="form-label">ထပ်တိုးဦးရေ</label>
+                            <input type="number" class="form-control" id="additionalCount" min="1" required>
+                            <div class="form-text">လက်ရှိဦးရေ: <span id="currentCount">0</span> ဦး</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ပယ်ဖျက်မည်</button>
+                    <button type="button" class="btn btn-primary" id="saveCountBtn">သိမ်းမည်</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Bootstrap modal instances
+            const editLoanModal = new bootstrap.Modal(document.getElementById('editLoanModal'));
+            const addRepaymentModal = new bootstrap.Modal(document.getElementById('addRepaymentModal'));
+            const addCountModal = new bootstrap.Modal(document.getElementById('addCountModal'));
+            
+            // DOM elements
+            const loanForm = document.getElementById('loanForm');
+            const editLoanForm = document.getElementById('editLoanForm');
+            const addRepaymentForm = document.getElementById('addRepaymentForm');
+            const addCountForm = document.getElementById('addCountForm');
+            const loanList = document.getElementById('loanList');
+            const searchName = document.getElementById('searchName');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const saveEditBtn = document.getElementById('saveEditBtn');
+            const saveRepaymentBtn = document.getElementById('saveRepaymentBtn');
+            const saveCountBtn = document.getElementById('saveCountBtn');
+            
+            // Load loans from localStorage
+            let loans = JSON.parse(localStorage.getItem('loans')) || [];
+            
+            // Render loans
+            function renderLoans(filteredLoans = null) {
+                const loansToRender = filteredLoans || loans;
+                loanList.innerHTML = '';
+                
+                if (loansToRender.length === 0) {
+                    loanList.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                ချေးငွေစာရင်းမရှိပါ
+                            </td>
+                        </tr>
+                    `;
+                    updateTotals();
+                    return;
+                }
+                
+                loansToRender.forEach((loan, index) => {
+                    const totalLoan = loan.amount * loan.count;
+                    const remaining = totalLoan - loan.repaid;
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'loan-item';
+                    row.innerHTML = `
+                        <td>${loan.name}</td>
+                        <td class="text-center">
+                            <span class="badge badge-count rounded-pill">${loan.count} ဦး</span>
+                        </td>
+                        <td class="text-end">${loan.amount.toLocaleString()} ကျပ်</td>
+                        <td class="text-end">
+                            <span class="badge badge-loan rounded-pill">${totalLoan.toLocaleString()} ကျပ်</span>
+                        </td>
+                        <td class="text-end">
+                            <span class="badge badge-repaid rounded-pill repay-btn" data-id="${index}">
+                                ${loan.repaid.toLocaleString()} ကျပ်
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <span class="badge badge-remaining rounded-pill">${remaining.toLocaleString()} ကျပ်</span>
+                        </td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-outline-primary edit-btn me-1" data-id="${index}">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${index}">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    loanList.appendChild(row);
+                });
+                
+                updateTotals();
+                
+                // Set up event listeners for buttons in the new rows
+                document.querySelectorAll('.edit-btn').forEach(btn => {
+                    btn.addEventListener('click', handleEdit);
+                });
+                
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', handleDelete);
+                });
+                
+                document.querySelectorAll('.repay-btn').forEach(btn => {
+                    btn.addEventListener('click', handleAddRepayment);
+                });
+                
+                document.querySelectorAll('.loan-item').forEach(item => {
+                    item.addEventListener('click', handleLoanItemClick);
+                });
+            }
+            
+            // Update summary totals
+            function updateTotals() {
+                const totalLoans = loans.reduce((sum, loan) => sum + (loan.amount * loan.count), 0);
+                const totalRepaid = loans.reduce((sum, loan) => sum + loan.repaid, 0);
+                const totalRemaining = totalLoans - totalRepaid;
+                const totalPeople = loans.reduce((sum, loan) => sum + loan.count, 0);
+                
+                document.getElementById('totalLoans').textContent = totalLoans.toLocaleString();
+                document.getElementById('totalRepaid').textContent = totalRepaid.toLocaleString();
+                document.getElementById('totalRemaining').textContent = totalRemaining.toLocaleString();
+                document.getElementById('totalPeople').textContent = totalPeople.toLocaleString();
+            }
+            
+            // Handle form submission for new loan
+            loanForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('name').value.trim();
+                const count = parseInt(document.getElementById('count').value);
+                const amount = parseInt(document.getElementById('amount').value);
+                
+                if (!name || isNaN(count) || isNaN(amount)) {
+                    alert('ကျေးဇူးပြု၍ မှန်ကန်သောအချက်အလက်များကိုဖြည့်ပါ');
+                    return;
+                }
+                
+                const newLoan = {
+                    name,
+                    count,
+                    amount,
+                    repaid: 0
+                };
+                
+                loans.push(newLoan);
+                localStorage.setItem('loans', JSON.stringify(loans));
+                renderLoans();
+                
+                // Reset form
+                loanForm.reset();
+                document.getElementById('count').value = 1;
+            });
+            
+            // Handle loan item click (to view/edit)
+            function handleLoanItemClick(e) {
+                // Only handle if the click wasn't on a button
+                if (!e.target.closest('button') && !e.target.classList.contains('repay-btn')) {
+                    const row = e.currentTarget;
+                    const index = Array.from(row.parentNode.children).indexOf(row);
+                    
+                    const loan = loans[index];
+                    document.getElementById('editLoanId').value = index;
+                    document.getElementById('editName').value = loan.name;
+                    document.getElementById('editCount').value = loan.count;
+                    document.getElementById('editAmount').value = loan.amount;
+                    document.getElementById('editRepaid').value = loan.repaid;
+                    
+                    editLoanModal.show();
+                }
+            }
+            
+            // Handle edit button click
+            function handleEdit(e) {
+                e.stopPropagation();
+                const index = e.currentTarget.getAttribute('data-id');
+                const loan = loans[index];
+                
+                document.getElementById('editLoanId').value = index;
+                document.getElementById('editName').value = loan.name;
+                document.getElementById('editCount').value = loan.count;
+                document.getElementById('editAmount').value = loan.amount;
+                document.getElementById('editRepaid').value = loan.repaid;
+                
+                editLoanModal.show();
+            }
+            
+            // Handle save edit
+            saveEditBtn.addEventListener('click', function() {
+                const index = document.getElementById('editLoanId').value;
+                const name = document.getElementById('editName').value.trim();
+                const count = parseInt(document.getElementById('editCount').value);
+                const amount = parseInt(document.getElementById('editAmount').value);
+                const repaid = parseInt(document.getElementById('editRepaid').value) || 0;
+                
+                if (!name || isNaN(count) || isNaN(amount) || isNaN(repaid)) {
+                    alert('ကျေးဇူးပြု၍ မှန်ကန်သောအချက်အလက်များကိုဖြည့်ပါ');
+                    return;
+                }
+                
+                loans[index] = { name, count, amount, repaid };
+                localStorage.setItem('loans', JSON.stringify(loans));
+                renderLoans();
+                editLoanModal.hide();
+            });
+            
+            // Handle delete button click
+            function handleDelete(e) {
+                e.stopPropagation();
+                const index = e.currentTarget.getAttribute('data-id');
+                
+                if (confirm(`${loans[index].name} ၏ချေးငွေစာရင်းကိုဖျက်မည်။ သေချာပါသလား?`)) {
+                    loans.splice(index, 1);
+                    localStorage.setItem('loans', JSON.stringify(loans));
+                    renderLoans();
+                }
+            }
+            
+            // Handle add repayment
+            function handleAddRepayment(e) {
+                e.stopPropagation();
+                const index = e.currentTarget.getAttribute('data-id');
+                const loan = loans[index];
+                const totalLoan = loan.amount * loan.count;
+                const remaining = totalLoan - loan.repaid;
+                
+                document.getElementById('repaymentLoanId').value = index;
+                document.getElementById('repaymentAmount').value = '';
+                document.getElementById('currentRemaining').textContent = remaining.toLocaleString();
+                
+                addRepaymentModal.show();
+            }
+            
+            // Save repayment
+            saveRepaymentBtn.addEventListener('click', function() {
+                const index = document.getElementById('repaymentLoanId').value;
+                const repaymentAmount = parseInt(document.getElementById('repaymentAmount').value);
+                
+                if (isNaN(repaymentAmount) || repaymentAmount <= 0) {
+                    alert('ကျေးဇူးပြု၍ မှန်ကန်သောပမာဏထည့်ပါ');
+                    return;
+                }
+                
+                const loan = loans[index];
+                const totalLoan = loan.amount * loan.count;
+                const remainingBefore = totalLoan - loan.repaid;
+                
+                if (repaymentAmount > remainingBefore) {
+                    alert(`အများဆုံးပြန်ဆပ်ႏိုင္ေသာပမာဏသည္ ${remainingBefore.toLocaleString()} က်ပ္သာျဖစ္ပါသည္။`);
+                    return;
+                }
+                
+                loan.repaid += repaymentAmount;
+                localStorage.setItem('loans', JSON.stringify(loans));
+                renderLoans();
+                addRepaymentModal.hide();
+            });
+            
+            // Handle search
+            searchName.addEventListener('input', function() {
+                const searchTerm = this.value.trim().toLowerCase();
+                
+                if (searchTerm === '') {
+                    renderLoans();
+                    return;
+                }
+                
+                const filteredLoans = loans.filter(loan => 
+                    loan.name.toLowerCase().includes(searchTerm)
+                );
+                
+                renderLoans(filteredLoans);
+            });
+            
+            // Clear all loans
+            clearAllBtn.addEventListener('click', function() {
+                if (loans.length === 0) return;
+                
+                if (confirm('ချေးငွေအားလုံးကိုဖျက်မည်။ သေချာပါသလား?')) {
+                    loans = [];
+                    localStorage.removeItem('loans');
+                    renderLoans();
+                }
+            });
+            
+            // Initialize
+            renderLoans();
+        });
+    </script>
+</body>
+</html>
